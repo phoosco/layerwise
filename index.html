@@ -392,4 +392,197 @@ function estimateClo(x) {
 
 function renderBuilder() {
   try {
-    const root =
+    const root = document.getElementById("builderList");
+    const summaryBox = document.getElementById("estimatorSummary");
+    const selRoot = document.getElementById("selectedList");
+    if (!root) return;
+
+    if (!wardrobe.length) {
+      root.innerHTML = '<div class="empty">Add garments to your wardrobe first.</div>';
+      if (selRoot) selRoot.textContent = "No garments selected.";
+      if (summaryBox) summaryBox.innerHTML = '<div class="small muted">Select layers from your wardrobe to estimate comfort range and weight.</div>';
+      return;
+    }
+
+    root.innerHTML = wardrobe.map(x => `
+      <div style="display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)">
+        <div>
+          <strong>${safe(x.brand ? x.brand + " · " : "")}${safe(x.name)}</strong>
+          <div class="small muted">${safe(x.category)}${x.weight ? " · " + safe(x.weight) + " g" : ""}</div>
+        </div>
+        <label style="margin:0;white-space:nowrap">
+          <input type="checkbox" style="width:auto" ${selected.includes(x.id) ? "checked" : ""} onchange="toggleSelected('${safe(x.id)}')"> Select
+        </label>
+      </div>
+    `).join("");
+
+    const chosen = wardrobe.filter(x => selected.includes(x.id));
+    if (!chosen.length) {
+      if (selRoot) selRoot.textContent = "No garments selected.";
+      if (summaryBox) summaryBox.innerHTML = '<div class="small muted">Tick one or more layers on the left to calculate system weight and comfort temperature.</div>';
+      return;
+    }
+
+    const totalWeight = chosen.reduce((s, x) => s + (Number(x.weight) || 0), 0);
+    let totalClo = 0.45 + chosen.reduce((s, x) => s + estimateClo(x), 0);
+
+    const bfVal = parseFloat(document.getElementById("estBodyFat").value);
+    if (!isNaN(bfVal) && bfVal > 0) {
+      totalClo = Math.max(0.4, totalClo + ((bfVal - 18) * 0.015));
+    }
+
+    const allSpecs = chosen.map(x => `${x.category} ${x.wind || ""} ${x.waterproofing || ""}`).join(" ").toLowerCase();
+    const hasWindproof = allSpecs.includes("windproof") || allSpecs.includes("shell") || allSpecs.includes("gore-tex") || allSpecs.includes("pertex");
+    const hasWaterproof = allSpecs.includes("waterproof") || allSpecs.includes("gore-tex") || allSpecs.includes("h2no") || allSpecs.includes("20,000");
+
+    const windLevel = document.getElementById("estWind").value;
+    let windLoss = windLevel === "breezy" ? (hasWindproof ? 0.05 : 0.35) : windLevel === "gale" ? (hasWindproof ? 0.15 : 0.75) : 0;
+    const effClo = Math.max(0.3, totalClo - windLoss);
+
+    const act = document.getElementById("estActivity").value;
+    const degPerClo = act === "static" ? 6.5 : act === "moderate" ? 11.5 : 16.0;
+    const baseTemp = act === "static" ? 23 : act === "moderate" ? 19 : 15;
+    const center = Math.round(baseTemp - (effClo * degPerClo));
+
+    if (summaryBox) {
+      summaryBox.innerHTML = `
+        <div class="est-row"><span class="muted">Comfort range</span><strong>${center - 3}°C to ${center + 3}°C</strong></div>
+        <div class="est-row"><span class="muted">Effective insulation</span><strong>${effClo.toFixed(2)} clo</strong></div>
+        <div class="est-row"><span class="muted">Total worn weight</span><strong>${totalWeight} g</strong></div>
+        <div class="est-row"><span class="muted">Wind / Rain</span><strong>${hasWindproof ? "Windproof" : "Air-permeable"} · ${hasWaterproof ? "Waterproof" : "DWR/Dry"}</strong></div>
+      `;
+    }
+
+    if (selRoot) {
+      selRoot.innerHTML = chosen.map(x => `<p style="margin:6px 0"><strong>${safe(x.name)}</strong><br><span class="muted">${safe(x.category)}</span></p>`).join("");
+    }
+  } catch (err) {
+    console.error("renderBuilder error:", err);
+  }
+}
+
+function saveBodyFat(val) {
+  try {
+    localStorage.setItem("layerwise_bf", val);
+    renderBuilder();
+  } catch (e) {}
+}
+
+async function handleSubmission(e) {
+  e.preventDefault();
+  try {
+    if (!SUPABASE_URL.startsWith("http") || SUPABASE_URL.includes("YOUR_SUPABASE")) {
+      alert("Please configure your Supabase URL and Anon Key in index.html first.");
+      return;
+    }
+
+    const btn = document.getElementById("submitBtn");
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Publishing…";
+    }
+
+    const v = id => document.getElementById(id).value.trim();
+    const fillVal = v("sFill");
+    const typeVal = v("sType");
+    const combinedInsulation = [typeVal, fillVal ? `${fillVal}g fill` : ""].filter(Boolean).join(" · ");
+    const hhVal = v("sHH");
+
+    const payload = {
+      brand: v("sBrand"),
+      model: v("sModel"),
+      category: v("sCategory"),
+      weight_g: v("sWeight") ? parseInt(v("sWeight"), 10) : null,
+      insulation: combinedInsulation || null,
+      fabric: typeVal || null,
+      waterproofing: hhVal ? `${hhVal}mm hydrostatic head` : null,
+      breathability: v("sBreath") || null,
+      wind_resistance: v("sWind") || null,
+      source_url: v("sSource") || null,
+      activity: v("sNotes") || null,
+      verified: false
+    };
+
+    const endpoint = `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/garments`;
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "apikey": SUPABASE_ANON_KEY.trim(),
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY.trim()}`,
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    e.target.reset();
+    alert("Contribution saved to the shared database and marked UNVERIFIED.");
+    await fetchCatalogueFromSupabase();
+    showTab("catalogue");
+  } catch (err) {
+    alert("Could not save submission: " + err.message);
+  } finally {
+    const btn = document.getElementById("submitBtn");
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Publish contribution";
+    }
+  }
+}
+
+function updateCount() {
+  try {
+    const el = document.getElementById("wardrobeCount");
+    if (el) el.textContent = wardrobe.length;
+  } catch (e) {}
+}
+
+async function fetchCatalogueFromSupabase() {
+  try {
+    const badge = document.getElementById("dbBadge");
+    if (!SUPABASE_URL.startsWith("http") || SUPABASE_URL.includes("YOUR_SUPABASE")) {
+      if (badge) badge.textContent = "V4 · Local mode";
+      renderCatalogue();
+      return;
+    }
+
+    const endpoint = `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/garments?select=*&order=verified.desc,brand.asc`;
+    const res = await fetch(endpoint, {
+      headers: {
+        "apikey": SUPABASE_ANON_KEY.trim(),
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY.trim()}`
+      }
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const rows = await res.json();
+    if (rows && rows.length > 0) {
+      catalogue = rows;
+    }
+    if (badge) badge.textContent = `V4 · Live DB (${catalogue.length})`;
+    const countEl = document.getElementById("catalogueCount");
+    if (countEl) countEl.textContent = catalogue.length;
+    renderCatalogue();
+  } catch (err) {
+    console.error("Supabase fetch failed:", err);
+    const badge = document.getElementById("dbBadge");
+    if (badge) badge.textContent = "V4 · Offline fallback";
+    renderCatalogue();
+  }
+}
+
+// Run initial renders safely
+try {
+  renderCatalogue();
+  renderWardrobe();
+  renderBuilder();
+  updateCount();
+  fetchCatalogueFromSupabase();
+} catch (e) {
+  console.error("Startup error:", e);
+}
+</script>
+</body>
+</html>

@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Layerwise — Outdoor Layering & Gear Catalogue</title>
-  <!-- Supabase JS v2 CDN -->
+  <title>Layerwise — Technical Layering & Gear Catalogue</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -20,6 +19,7 @@
       --warn-text: #fbbf24;
       --verified-bg: #123829;
       --verified-text: #34d399;
+      --danger-text: #f87171;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -96,9 +96,10 @@
       padding: 10px 12px;
       border-radius: 8px;
       font-size: 0.95rem;
+      font-family: inherit;
     }
 
-    input:focus, select:focus { outline: 1px solid var(--accent); }
+    input:focus, select:focus, textarea:focus { outline: 1px solid var(--accent); }
 
     .grid {
       display: grid;
@@ -136,6 +137,7 @@
     }
     .badge.verified { background: var(--verified-bg); color: var(--verified-text); }
     .badge.unverified { background: var(--warn-bg); color: var(--warn-text); }
+    .badge.personal { background: #1e293b; color: #93c5fd; }
 
     .specs {
       font-size: 0.86rem;
@@ -163,8 +165,16 @@
     }
     .btn-danger {
       background: transparent;
-      color: #f87171;
+      color: var(--danger-text);
       border: 1px solid #7f1d1d;
+    }
+
+    .estimator-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
     }
 
     .form-grid {
@@ -180,26 +190,29 @@
     .form-group { display: flex; flex-direction: column; gap: 6px; }
     .form-group label { font-size: 0.85rem; color: var(--text-muted); }
 
-    .estimator-box {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-
     .summary-stats {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-      padding-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+      padding-top: 16px;
       border-top: 1px solid var(--border);
     }
 
-    .stat-box { background: var(--bg-input); padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border); }
-    .stat-label { font-size: 0.78rem; color: var(--text-muted); }
-    .stat-val { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+    .stat-box { background: var(--bg-input); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border); }
+    .stat-label { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-val { font-size: 1.15rem; font-weight: 700; color: var(--accent); margin-top: 2px; }
+    .stat-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+
+    .advice-banner {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: var(--bg-input);
+      border-left: 3px solid var(--accent);
+      font-size: 0.88rem;
+      color: var(--text-main);
+    }
   </style>
 </head>
 <body>
@@ -207,14 +220,14 @@
     <header>
       <div>
         <h1>Layerwise</h1>
-        <div class="subtitle">Technical Outdoor Garment Catalogue & Layering System</div>
+        <div class="subtitle">Technical Outdoor Garment Catalogue & Physiological Layering Estimator</div>
       </div>
       <div id="dbStatus" class="status-pill">Connecting to database...</div>
     </header>
 
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('catalogue', this)">Shared Catalogue</button>
-      <button class="tab-btn" onclick="switchTab('wardrobe', this)">My Wardrobe & Outfit (<span id="outfitCount">0</span>)</button>
+      <button class="tab-btn" onclick="switchTab('wardrobe', this)">Outfit & Estimator (<span id="outfitCount">0</span>)</button>
       <button class="tab-btn" onclick="switchTab('submit', this)">+ Submit Garment</button>
     </div>
 
@@ -238,41 +251,115 @@
       <div id="catalogueGrid" class="grid"></div>
     </section>
 
-    <!-- WARDROBE & OUTFIT ESTIMATOR PANEL -->
+    <!-- OUTFIT & ESTIMATOR PANEL -->
     <section id="wardrobe" class="panel">
       <div class="estimator-box">
-        <h2>Active Outfit System</h2>
-        <p class="subtitle">Add garments from the Shared Catalogue to calculate total pack/worn weight and weather protection.</p>
-        <div class="summary-stats">
-          <div class="stat-box">
-            <div class="stat-label">Total System Weight</div>
-            <div class="stat-val" id="totalWeight">0 g</div>
+        <h2>Thermodynamic Outfit Estimator</h2>
+        <p class="subtitle" style="margin-bottom: 14px;">Adjust exertion and body composition to estimate comfortable operating temperatures.</p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 14px;">
+          <div class="form-group">
+            <label>Activity / Exertion Level</label>
+            <select id="activityLevel" onchange="renderOutfit()">
+              <option value="static">Static / Camp / Belaying (1.2 MET)</option>
+              <option value="moderate" selected>Steady Hillwalking / Hiking (3.5 MET)</option>
+              <option value="high">Fast Ascent / Steep Uphill (6.0 MET)</option>
+            </select>
           </div>
-          <div class="stat-box">
-            <div class="stat-label">Weather Shell</div>
-            <div class="stat-val" id="weatherStatus">No Outer Shell</div>
+          <div class="form-group">
+            <label>Body Fat % (Optional)</label>
+            <input type="number" id="bodyFatInput" min="4" max="55" step="1" placeholder="e.g. 18" oninput="savePhysiology(); renderOutfit();" />
           </div>
-          <div class="stat-box">
-            <div class="stat-label">Insulation Layers</div>
-            <div class="stat-val" id="insulationCount">0</div>
+          <div class="form-group">
+            <label>Wind Exposure</label>
+            <select id="windExposure" onchange="renderOutfit()">
+              <option value="sheltered">Sheltered / Forest</option>
+              <option value="breezy" selected>Exposed Ridge (15–25 mph wind)</option>
+              <option value="gale">Gale / Munro Summit (35+ mph wind)</option>
+            </select>
           </div>
         </div>
+
+        <div class="summary-stats">
+          <div class="stat-box">
+            <div class="stat-label">Estimated Comfort Temp</div>
+            <div class="stat-val" id="comfortTemp">-- °C</div>
+            <div class="stat-sub" id="cloRating">System Insulation: 0.0 clo</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Total Worn Weight</div>
+            <div class="stat-val" id="totalWeight">0 g</div>
+            <div class="stat-sub" id="layerBreakdown">0 layers active</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Wind Protection</div>
+            <div class="stat-val" id="windStatus">None</div>
+            <div class="stat-sub" id="windSub">Convective heat loss risk</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Rain / Wet Protection</div>
+            <div class="stat-val" id="rainStatus">None</div>
+            <div class="stat-sub" id="rainSub">Check hydrostatic head</div>
+          </div>
+        </div>
+
+        <div class="advice-banner" id="estimatorAdvice">
+          Add layers from the Shared Catalogue to simulate your layering system.
+        </div>
       </div>
+
+      <!-- Quick Add Personal Gear -->
+      <details class="estimator-box" style="cursor:pointer; padding: 14px 20px;">
+        <summary style="font-weight:700; color:var(--accent);">+ Add Custom Personal Item (Saved locally)</summary>
+        <form onsubmit="addPersonalItem(event)" class="form-grid" style="margin-top:14px; cursor:default; background:var(--bg-input);">
+          <div class="form-group">
+            <label>Brand & Model *</label>
+            <input type="text" id="pName" required placeholder="e.g. Decathlon Fleece" />
+          </div>
+          <div class="form-group">
+            <label>Category *</label>
+            <select id="pCat">
+              <option value="Base Layer">Base Layer</option>
+              <option value="Mid Layer" selected>Mid Layer</option>
+              <option value="Insulated Layer">Insulated Layer</option>
+              <option value="Outer Shell">Outer Shell</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Weight (g)</label>
+            <input type="number" id="pWeight" placeholder="e.g. 290" />
+          </div>
+          <div class="form-group">
+            <label>Insulation / Shell Notes</label>
+            <input type="text" id="pNotes" placeholder="e.g. Grid fleece / 10k waterproof" />
+          </div>
+          <div class="form-group" style="justify-content:flex-end;">
+            <button type="submit" class="btn">Add to Outfit</button>
+          </div>
+        </form>
+      </details>
+
       <div id="wardrobeGrid" class="grid"></div>
     </section>
 
     <!-- SUBMIT GARMENT PANEL -->
     <section id="submit" class="panel">
-      <h2 style="margin-bottom: 12px;">Submit a Garment to the Shared Catalogue</h2>
-      <p class="subtitle" style="margin-bottom: 18px;">Submissions appear immediately for all users tagged as <strong>Community (Unverified)</strong> until reviewed.</p>
+      <div class="estimator-box" style="margin-bottom: 20px;">
+        <h3 style="margin-bottom:6px; color:var(--accent);">⚡ Quick Auto-Fill from Product Page</h3>
+        <p class="subtitle" style="margin-bottom:10px;">Paste raw specs from any brand's page to auto-extract weight, fill power, and fabrics.</p>
+        <textarea id="rawSpecPaste" rows="3" style="width:100%; margin-bottom:10px;" placeholder="Paste raw product specs here..."></textarea>
+        <button type="button" class="btn btn-outline" onclick="parseRawSpecs()">Auto-Extract into Form Below</button>
+      </div>
+
+      <h2 style="margin-bottom: 12px;">Publish to Shared Catalogue</h2>
       <form id="submitForm" class="form-grid" onsubmit="handleSubmission(event)">
         <div class="form-group">
           <label>Brand *</label>
-          <input type="text" id="fBrand" required placeholder="e.g. Mountain Equipment" />
+          <input type="text" id="fBrand" required placeholder="e.g. Rab" />
         </div>
         <div class="form-group">
           <label>Model *</label>
-          <input type="text" id="fModel" required placeholder="e.g. Tupilak Jacket" />
+          <input type="text" id="fModel" required placeholder="e.g. Xenair Alpine" />
         </div>
         <div class="form-group">
           <label>Category *</label>
@@ -285,31 +372,31 @@
         </div>
         <div class="form-group">
           <label>Weight (grams)</label>
-          <input type="number" id="fWeight" placeholder="e.g. 420" />
+          <input type="number" id="fWeight" placeholder="e.g. 290" />
         </div>
         <div class="form-group">
           <label>Insulation Type & Fill Weight</label>
-          <input type="text" id="fInsulation" placeholder="e.g. 800FP Goose Down (140g) or None" />
+          <input type="text" id="fInsulation" placeholder="e.g. PrimaLoft Gold 60g" />
         </div>
         <div class="form-group">
           <label>Fabric & Construction</label>
-          <input type="text" id="fFabric" placeholder="e.g. 3L Gore-Tex Pro 40D" />
+          <input type="text" id="fFabric" placeholder="e.g. Pertex Quantum" />
         </div>
         <div class="form-group">
           <label>Wind Resistance</label>
-          <input type="text" id="fWind" placeholder="e.g. Windproof / Wind-resistant" />
+          <input type="text" id="fWind" placeholder="e.g. Windproof" />
         </div>
         <div class="form-group">
           <label>Waterproofing / Hydrostatic Head</label>
-          <input type="text" id="fWater" placeholder="e.g. 28,000mm / DWR only" />
+          <input type="text" id="fWater" placeholder="e.g. 20,000mm / DWR" />
         </div>
         <div class="form-group">
           <label>Breathability</label>
-          <input type="text" id="fBreath" placeholder="e.g. High / RET < 6" />
+          <input type="text" id="fBreath" placeholder="e.g. High" />
         </div>
         <div class="form-group">
           <label>Intended Activity & Conditions</label>
-          <input type="text" id="fActivity" placeholder="e.g. Winter mountaineering" />
+          <input type="text" id="fActivity" placeholder="e.g. Alpine climbing" />
         </div>
         <div class="form-group">
           <label>Manufacturer / Spec Source URL</label>
@@ -334,7 +421,13 @@
     let catalogue = [];
     let myOutfit = JSON.parse(localStorage.getItem("layerwise_outfit") || "[]");
 
-    // Initialize Supabase
+    const savedBF = localStorage.getItem("layerwise_bf");
+    if (savedBF) document.getElementById("bodyFatInput").value = savedBF;
+
+    function savePhysiology() {
+      localStorage.setItem("layerwise_bf", document.getElementById("bodyFatInput").value);
+    }
+
     if (SUPABASE_URL.startsWith("http")) {
       db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
@@ -344,6 +437,7 @@
       if (!db) {
         statusEl.textContent = "⚠️ Add Supabase keys in code";
         statusEl.style.color = "#fbbf24";
+        renderOutfit();
         return;
       }
 
@@ -399,7 +493,7 @@
             <div>
               <div class="card-header">
                 <div>
-                  <div class="brand">${escapeHtml(item.brand)} •${escapeHtml(item.category)}</div>
+                  <div class="brand">${escapeHtml(item.brand)} • ${escapeHtml(item.category)}</div>
                   <div class="model">${escapeHtml(item.model)}</div>
                 </div>
                 <span class="badge ${item.verified ? 'verified' : 'unverified'}">
@@ -407,4 +501,244 @@
                 </span>
               </div>
               <div class="specs" style="margin-top:12px;">
-                <div><strong>Weight:</strong> ${item.weight_g ? item.weight_g + ' g' :
+                <div><strong>Weight:</strong> ${item.weight_g ? item.weight_g + ' g' : 'N/A'}</div>
+                <div><strong>Insulation:</strong> ${escapeHtml(item.insulation || 'None / Unspecified')}</div>
+                <div><strong>Fabric:</strong> ${escapeHtml(item.fabric || 'Unspecified')}</div>
+                <div><strong>Wind / Water:</strong> ${escapeHtml(item.wind_resistance || '-')} / ${escapeHtml(item.waterproofing || '-')}</div>
+                <div><strong>Breathability:</strong> ${escapeHtml(item.breathability || 'Unspecified')}</div>
+                <div><strong>Activity:</strong> ${escapeHtml(item.activity || 'General outdoor')}</div>
+              </div>
+            </div>
+            <button class="btn ${inOutfit ? 'btn-outline' : ''}" onclick="toggleOutfit('${item.id}')">
+              ${inOutfit ? '✓ In Active Outfit' : '+ Add to Outfit'}
+            </button>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function toggleOutfit(id) {
+      const exists = myOutfit.find(o => o.id === id);
+      if (exists) {
+        myOutfit = myOutfit.filter(o => o.id !== id);
+      } else {
+        const item = catalogue.find(c => c.id === id);
+        if (item) myOutfit.push(item);
+      }
+      localStorage.setItem("layerwise_outfit", JSON.stringify(myOutfit));
+      renderCatalogue();
+      renderOutfit();
+    }
+
+    function addPersonalItem(e) {
+      e.preventDefault();
+      const newItem = {
+        id: "personal_" + Date.now(),
+        brand: "Personal Gear",
+        model: document.getElementById("pName").value.trim(),
+        category: document.getElementById("pCat").value,
+        weight_g: parseInt(document.getElementById("pWeight").value, 10) || 0,
+        insulation: document.getElementById("pNotes").value.trim(),
+        waterproofing: document.getElementById("pNotes").value.trim(),
+        wind_resistance: document.getElementById("pNotes").value.trim(),
+        personal: true
+      };
+      myOutfit.push(newItem);
+      localStorage.setItem("layerwise_outfit", JSON.stringify(myOutfit));
+      e.target.reset();
+      renderOutfit();
+    }
+
+    function estimateGarmentClo(item) {
+      const ins = (item.insulation || "").toLowerCase();
+      const cat = item.category;
+      const w = Number(item.weight_g) || 0;
+
+      if (cat === "Base Layer") {
+        if (ins.includes("260") || ins.includes("heavy")) return 0.45;
+        if (ins.includes("200") || ins.includes("merino")) return 0.35;
+        return 0.25;
+      }
+      if (cat === "Mid Layer") {
+        if (ins.includes("coreloft 100") || ins.includes("primaloft") || w > 400) return 0.85;
+        if (ins.includes("coreloft") || ins.includes("grid") || ins.includes("fleece")) return 0.65;
+        return 0.55;
+      }
+      if (cat === "Insulated Layer") {
+        if (ins.includes("850fp") || ins.includes("800fp") || w > 550) return 1.85;
+        if (ins.includes("700fp") || ins.includes("650fp") || w > 400) return 1.45;
+        return 1.15;
+      }
+      if (cat === "Outer Shell") return 0.30;
+      return 0.30;
+    }
+
+    function renderOutfit() {
+      document.getElementById("outfitCount").textContent = myOutfit.length;
+      const grid = document.getElementById("wardrobeGrid");
+
+      const totalWeight = myOutfit.reduce((sum, item) => sum + (Number(item.weight_g) || 0), 0);
+      document.getElementById("totalWeight").textContent = `${totalWeight} g`;
+      document.getElementById("layerBreakdown").textContent = `${myOutfit.length} layer(s) selected`;
+
+      if (myOutfit.length === 0) {
+        document.getElementById("comfortTemp").textContent = "-- °C";
+        document.getElementById("cloRating").textContent = "System Insulation: 0.0 clo";
+        document.getElementById("windStatus").textContent = "None";
+        document.getElementById("rainStatus").textContent = "None";
+        grid.innerHTML = `<p style="color:var(--text-muted);">Your outfit is empty. Add items from the Shared Catalogue tab.</p>`;
+        return;
+      }
+
+      let totalClo = 0.45 + myOutfit.reduce((sum, item) => sum + estimateGarmentClo(item), 0);
+
+      const bfVal = parseFloat(document.getElementById("bodyFatInput").value);
+      let bfNote = "";
+      if (!isNaN(bfVal) && bfVal > 0) {
+        const bfDelta = (bfVal - 18) * 0.015;
+        totalClo = Math.max(0.4, totalClo + bfDelta);
+        if (bfVal <= 12) bfNote = `At ${bfVal}% body fat, lower passive tissue insulation means you'll chill quickly once static.`;
+        else if (bfVal >= 26) bfNote = `At ${bfVal}% body fat, higher subcutaneous insulation retains extra core warmth.`;
+      }
+
+      const windLevel = document.getElementById("windExposure").value;
+      const allText = myOutfit.map(i => `${i.category} ${i.wind_resistance || ""} ${i.waterproofing || ""} ${i.fabric || ""}`).join(" ").toLowerCase();
+      const hasWindproof = allText.includes("windproof") || allText.includes("outer shell") || allText.includes("gore-tex") || allText.includes("pertex");
+      const hasWaterproof = allText.includes("20,000") || allText.includes("28,000") || allText.includes("gore-tex") || allText.includes("h2no") || allText.includes("waterproof");
+
+      let windPenalty = 0;
+      if (windLevel === "breezy") windPenalty = hasWindproof ? 0.05 : 0.35;
+      if (windLevel === "gale") windPenalty = hasWindproof ? 0.15 : 0.75;
+      const effectiveClo = Math.max(0.3, totalClo - windPenalty);
+
+      const activity = document.getElementById("activityLevel").value;
+      const degPerClo = activity === "static" ? 6.5 : activity === "moderate" ? 11.5 : 16.0;
+      const baseNeutralTemp = activity === "static" ? 23 : activity === "moderate" ? 19 : 15;
+
+      const comfortCenter = Math.round(baseNeutralTemp - (effectiveClo * degPerClo));
+      const lowTemp = comfortCenter - 3;
+      const highTemp = comfortCenter + 3;
+
+      document.getElementById("comfortTemp").textContent = `${lowTemp}°C to ${highTemp}°C`;
+      document.getElementById("cloRating").textContent = `Effective Insulation: ${effectiveClo.toFixed(2)} clo`;
+
+      document.getElementById("windStatus").textContent = hasWindproof ? "Windproof" : "Air-Permeable";
+      document.getElementById("windStatus").style.color = hasWindproof ? "#34d399" : "#fbbf24";
+      document.getElementById("windSub").textContent = hasWindproof ? "Blocks convective chill" : "Wind cuts through loft";
+
+      document.getElementById("rainStatus").textContent = hasWaterproof ? "Waterproof Shell" : "DWR / Dry Only";
+      document.getElementById("rainStatus").style.color = hasWaterproof ? "#34d399" : "#fbbf24";
+      document.getElementById("rainSub").textContent = hasWaterproof ? "Sustained rain ready" : "Not rated for heavy rain";
+
+      let advice = [];
+      if (!hasWindproof && windLevel !== "sheltered") {
+        advice.push("⚠️ **Wind Warning:** Without a windproof outer layer, ridge winds strip significant warmth.");
+      }
+      if (activity === "high" && effectiveClo > 1.8) {
+        advice.push("🥵 **Overheating Risk:** High insulation during steep ascents will cause heavy sweating.");
+      }
+      if (bfNote) advice.push(`🧬 **Physiology:** ${bfNote}`);
+      if (advice.length === 0) {
+        advice.push("✅ **Balanced System:** Good match for your selected exertion and conditions.");
+      }
+      document.getElementById("estimatorAdvice").innerHTML = advice.join("<br>");
+
+      grid.innerHTML = myOutfit.map(item => `
+        <div class="card">
+          <div>
+            <div class="card-header">
+              <div>
+                <div class="brand">${escapeHtml(item.brand)} • ${escapeHtml(item.category)}</div>
+                <div class="model">${escapeHtml(item.model)}</div>
+              </div>
+              ${item.personal ? '<span class="badge personal">Personal</span>' : ''}
+            </div>
+            <div class="specs" style="margin-top:8px;">
+              <div><strong>Weight:</strong> ${item.weight_g ? item.weight_g + ' g' : 'N/A'}</div>
+              <div><strong>Specs:</strong> ${escapeHtml(item.insulation || item.waterproofing || 'Standard')}</div>
+            </div>
+          </div>
+          <button class="btn btn-danger" onclick="toggleOutfit('${item.id}')">Remove</button>
+        </div>
+      `).join("");
+    }
+
+    function parseRawSpecs() {
+      const text = document.getElementById("rawSpecPaste").value;
+      if (!text.trim()) return;
+
+      const weightMatch = text.match(/(\d{2,4})\s*g\b/i);
+      if (weightMatch) document.getElementById("fWeight").value = weightMatch[1];
+
+      const downMatch = text.match(/(\d{3}\s*FP[^.,;\n]*|PrimaLoft[^.,;\n]*|Coreloft[^.,;\n]*|Polartec[^.,;\n]*|Merino[^.,;\n]*)/i);
+      if (downMatch) document.getElementById("fInsulation").value = downMatch[1].trim();
+
+      const waterMatch = text.match(/(\d{1,2},\d{3}\s*mm[^.,;\n]*|Gore-Tex[^.,;\n]*|H2No[^.,;\n]*|Pertex Shield[^.,;\n]*|DWR[^.,;\n]*)/i);
+      if (waterMatch) document.getElementById("fWater").value = waterMatch[1].trim();
+
+      const fabricMatch = text.match(/(\d{1,3}D\s+[A-Za-z0-9\s-]+|Pertex Quantum[^.,;\n]*|Tyono[^.,;\n]*|3-layer[^.,;\n]*)/i);
+      if (fabricMatch) document.getElementById("fFabric").value = fabricMatch[1].trim();
+
+      if (/windproof/i.test(text)) document.getElementById("fWind").value = "Windproof";
+      else if (/wind[- ]resistant/i.test(text)) document.getElementById("fWind").value = "Wind-resistant";
+    }
+
+    async function handleSubmission(e) {
+      e.preventDefault();
+      if (!db) return alert("Please configure your Supabase URL and Key first.");
+
+      const btn = document.getElementById("submitBtn");
+      btn.disabled = true;
+      btn.textContent = "Saving...";
+
+      const payload = {
+        brand: document.getElementById("fBrand").value.trim(),
+        model: document.getElementById("fModel").value.trim(),
+        category: document.getElementById("fCategory").value,
+        weight_g: document.getElementById("fWeight").value ? parseInt(document.getElementById("fWeight").value, 10) : null,
+        insulation: document.getElementById("fInsulation").value.trim(),
+        fabric: document.getElementById("fFabric").value.trim(),
+        wind_resistance: document.getElementById("fWind").value.trim(),
+        waterproofing: document.getElementById("fWater").value.trim(),
+        breathability: document.getElementById("fBreath").value.trim(),
+        activity: document.getElementById("fActivity").value.trim(),
+        source_url: document.getElementById("fSource").value.trim(),
+        verified: false
+      };
+
+      const { error } = await db.from("garments").insert([payload]);
+
+      btn.disabled = false;
+      btn.textContent = "Publish to Catalogue";
+
+      if (error) {
+        alert("Error submitting garment: " + error.message);
+        return;
+      }
+
+      document.getElementById("submitForm").reset();
+      document.getElementById("rawSpecPaste").value = "";
+      await loadCatalogue();
+      switchTab("catalogue", document.querySelector(".tab-btn"));
+    }
+
+    function switchTab(tabId, btnEl) {
+      document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+      btnEl.classList.add("active");
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    loadCatalogue();
+  </script>
+</body>
+</html>

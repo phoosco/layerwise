@@ -533,6 +533,38 @@ async function handleSubmission(e) {
   }
 }
 
+function populateBrandList() {
+  const brandList = document.getElementById("brandList");
+
+  if (!brandList) return;
+
+  const brands = [...new Set(
+    catalogue
+      .map(item => item.brand)
+      .filter(Boolean)
+  )].sort();
+
+  brandList.innerHTML = brands
+    .map(brand => `<option value="${brand}">`)
+    .join("");
+}
+
+function updateModelList() {
+  const brand = document.getElementById("sBrand").value;
+  const modelList = document.getElementById("modelList");
+
+  if (!modelList) return;
+
+  const models = catalogue
+    .filter(item => item.brand === brand)
+    .map(item => item.model)
+    .filter(Boolean)
+    .sort();
+
+  modelList.innerHTML = models
+    .map(model => `<option value="${model}">`)
+    .join("");
+} 
 function updateCount() {
   try {
     const el = document.getElementById("wardrobeCount");
@@ -546,6 +578,7 @@ async function fetchCatalogueFromSupabase() {
     if (!SUPABASE_URL.startsWith("http") || SUPABASE_URL.includes("YOUR_SUPABASE")) {
       if (badge) badge.textContent = "V4 · Local mode";
       renderCatalogue();
+      populateBrandList();
       return;
     }
 

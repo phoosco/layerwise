@@ -503,7 +503,7 @@ async function handleSubmission(e) {
       verified: false
     };
 
-    const endpoint = `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/garments`;
+    const endpoint = `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/catalogue_items`;
     const res = await fetch(endpoint, {
       method: "POST",
       headers: {
@@ -548,7 +548,7 @@ async function fetchCatalogueFromSupabase() {
       return;
     }
 
-    const endpoint = `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/garments?select=*&order=verified.desc,brand.asc`;
+    const endpoint = `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/catalogue_items?select=*&order=verified.desc,brand.asc`;
     const res = await fetch(endpoint, {
       headers: {
         "apikey": SUPABASE_ANON_KEY.trim(),

@@ -1,143 +1,147 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#172a24">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Layerwise — Build your system</title>
+<meta name="description" content="A practical outdoor clothing catalogue and layering planner.">
 <style>
-:root{--ink:#1d2b25;--forest:#20382e;--moss:#667c68;--sage:#dce5d9;--paper:#f3f2eb;--white:#fffefa;--line:#dfe2d8;--muted:#748078;--orange:#c17b45}
-*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-header{background:var(--forest);color:#f8f7ef;padding:25px max(24px,calc((100% - 1160px)/2));display:flex;align-items:center;justify-content:space-between;gap:20px}
-.brand{font-size:22px;font-weight:800;letter-spacing:.16em}.brand span{color:#b8c8b5}.tagline{font-size:12px;color:#c6d1c6;letter-spacing:.08em;text-transform:uppercase;margin-top:5px}
-.header-note{font-size:12px;color:#c6d1c6;text-align:right}
-main{max-width:1160px;margin:34px auto;padding:0 22px 60px}
-.intro{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:25px}.eyebrow{font-size:11px;font-weight:800;letter-spacing:.16em;color:var(--moss);text-transform:uppercase}.intro h1{font-size:clamp(28px,4vw,42px);letter-spacing:-.04em;margin:8px 0}.intro p{margin:0;color:var(--muted);max-width:590px;line-height:1.55}
-.status{background:#e6ebe1;border:1px solid #d3ddcf;padding:10px 14px;border-radius:7px;font-size:12px;color:#425b47;white-space:nowrap}
-nav{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:24px;overflow:auto}
-nav button{border:0;background:transparent;padding:13px 16px;color:var(--muted);font-weight:700;white-space:nowrap;border-bottom:3px solid transparent;cursor:pointer}
-nav button.active{color:var(--forest);border-color:var(--moss)}
-.panel{display:none}.panel.active{display:block}
-.grid{display:grid;grid-template-columns:1.25fr .75fr;gap:20px}.card{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:22px;margin-bottom:18px}
-.card h2{font-size:18px;margin:0 0 6px;letter-spacing:-.02em}.sub{font-size:13px;color:var(--muted);margin:0 0 18px;line-height:1.5}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}.stat{background:#f0f2eb;border-radius:9px;padding:14px}.stat b{display:block;font-size:25px}.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
-label{font-size:12px;font-weight:700;display:block;margin:12px 0 6px;color:#45564b}
-input,select{font:inherit;font-size:14px;width:100%;border:1px solid #d6dbd1;background:#fffefa;border-radius:7px;padding:11px;color:var(--ink);outline:none}
-input:focus,select:focus{border-color:var(--moss);box-shadow:0 0 0 3px #667c681c}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.btn{border:0;background:var(--forest);color:white;border-radius:7px;padding:11px 16px;font-weight:700;cursor:pointer;font-size:13px}.btn:hover{background:#355443}.btn.secondary{background:#e8ede5;color:var(--forest)}.btn.ghost{background:transparent;color:var(--moss);padding:7px 9px}.btn.small{padding:7px 10px;font-size:12px}
-.item{display:flex;align-items:center;gap:12px;border-top:1px solid #edf0e9;padding:12px 0}.item:first-child{border-top:0}.item-icon{width:38px;height:38px;border-radius:8px;background:#e9eee5;display:grid;place-items:center;font-size:19px;flex:none}.item-main{flex:1;min-width:0}.item-main b{font-size:13px;display:block}.item-main small{color:var(--muted);font-size:11px}.item-actions{display:flex;align-items:center;gap:7px}
-.pill{font-size:10px;letter-spacing:.04em;text-transform:uppercase;border-radius:99px;padding:5px 8px;background:#edf0e9;color:#536a57;font-weight:800}
-.empty{padding:24px 12px;text-align:center;color:var(--muted);font-size:13px;border:1px dashed #d6ddd2;border-radius:9px}
-.result{background:var(--forest);color:#f8f7ef;border-radius:11px;padding:22px;margin-top:16px}.result .eyebrow{color:#b8c8b5}.result h3{font-size:27px;margin:7px 0}.result p{color:#d4ddd3;font-size:13px;line-height:1.5;margin:6px 0}.range{font-size:34px;font-weight:800;letter-spacing:-.04em;margin:8px 0}
-.notice{font-size:11px;color:var(--muted);line-height:1.5;margin-top:15px}.catalog-tools{display:grid;grid-template-columns:1fr 190px;gap:10px;margin-bottom:12px}
-.checkrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #edf0e9;font-size:13px}.checkrow input{width:auto}
-footer{max-width:1160px;margin:auto;padding:0 22px 35px;color:#8a9389;font-size:11px;display:flex;justify-content:space-between;gap:20px}
-@media(max-width:760px){header{padding:20px 22px}.header-note{display:none}.intro{display:block}.status{display:inline-block;margin-top:15px}.grid{grid-template-columns:1fr}.stats{gap:7px}.stat{padding:11px}.stat b{font-size:21px}.catalog-tools{grid-template-columns:1fr}.row{grid-template-columns:1fr}}
+:root{--ink:#182923;--muted:#66756d;--paper:#f3f1e9;--card:#fffefa;--line:#d9ded5;--green:#183d30;--lime:#d5e4a6;--amber:#f1dfb5;--blue:#dce8e6;--shadow:0 10px 30px #1b33200c}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:var(--green);color:#fff;padding:28px max(22px,calc((100vw - 1120px)/2)) 24px}
+.topline{display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:#c9d7c9;font-weight:700}.version{font-size:12px;color:#d5e4a6;border:1px solid #668074;border-radius:99px;padding:4px 10px}
+h1{font-size:clamp(32px,5vw,54px);line-height:1.03;letter-spacing:-.045em;margin:24px 0 10px;max-width:750px}header p{color:#d4dfd7;max-width:650px;margin:0}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:26px}nav button{border:1px solid #577064;background:transparent;color:#e5eee7;padding:9px 14px;border-radius:6px;font:inherit;cursor:pointer}nav button.active{background:var(--lime);border-color:var(--lime);color:var(--green);font-weight:700}
+main{max-width:1120px;margin:30px auto;padding:0 22px 70px}.panel{display:none}.panel.active{display:block}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:var(--muted);font-weight:800;margin-bottom:8px}
+h2{font-size:28px;letter-spacing:-.035em;margin:0 0 8px}h3{font-size:17px;margin:0 0 8px}.intro{color:var(--muted);max-width:760px;margin:0 0 24px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:19px;box-shadow:var(--shadow)}.span-8{grid-column:span 8}.span-6{grid-column:span 6}.span-4{grid-column:span 4}.span-12{grid-column:span 12}
+.stat{font-size:31px;letter-spacing:-.05em;font-weight:750}.muted{color:var(--muted)}.small{font-size:12px}.pill{display:inline-flex;align-items:center;border-radius:99px;padding:3px 9px;font-size:11px;font-weight:750;letter-spacing:.02em}.verified{background:#e1ecd0;color:#31532d}.pending{background:#f5e7c7;color:#74541c}.local{background:#e1e9e8;color:#385b57}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:18px 0}.toolbar input{flex:1;min-width:190px}
+input,select,textarea{width:100%;border:1px solid #cbd3c9;background:#fffefa;border-radius:6px;padding:10px 11px;color:var(--ink);font:inherit}textarea{min-height:78px;resize:vertical}label{display:block;font-size:12px;font-weight:750;color:#45564c;margin:12px 0 5px}.fieldrow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button.primary{background:var(--green);color:white;border:1px solid var(--green);padding:10px 15px;border-radius:6px;font:inherit;font-weight:700;cursor:pointer}button.secondary{background:transparent;color:var(--green);border:1px solid #9eafa3;padding:9px 13px;border-radius:6px;font:inherit;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px 9px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}td{font-size:13px}.product{display:flex;flex-direction:column;gap:3px}.product strong{font-size:14px}.specs{color:var(--muted);font-size:12px}
+.notice{padding:13px 15px;background:#e8ede4;border-left:3px solid #6e8b65;border-radius:4px;color:#425345;font-size:13px;margin:16px 0}
+.warning{background:#f6edda;border-left-color:#bb9145}.empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed #bdc8bd;border-radius:8px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.full{grid-column:1/-1}.hidden{display:none!important}
+footer{max-width:1120px;margin:0 auto;padding:0 22px 35px;color:var(--muted);font-size:12px}
+@media(max-width:760px){.span-8,.span-6,.span-4{grid-column:span 12}.fieldrow,.formgrid{grid-template-columns:1fr}.full{grid-column:auto}main{margin-top:22px}.card{padding:16px}table{display:block;overflow-x:auto;white-space:nowrap}}
 </style>
 </head>
 <body>
 <header>
-  <div><div class="brand">LAYER<span>WISE</span></div><div class="tagline">A field guide to your clothing system</div></div>
-  <div class="header-note">FIELD TOOLS / 001<br>PERSONAL LAYERING LAB</div>
+ <div class="topline"><div class="brand">Layerwise / Field system</div><div class="version">V3 · Catalogue & contributions</div></div>
+ <h1>Build a system.<br>Understand every layer.</h1>
+ <p>A practical clothing catalogue and layering workspace for people who spend time outside.</p>
+ <nav aria-label="Main navigation">
+  <button class="active" data-tab="overview">Overview</button>
+  <button data-tab="catalogue">Clothing catalogue</button>
+  <button data-tab="submit">Submit a garment</button>
+  <button data-tab="wardrobe">My wardrobe</button>
+  <button data-tab="builder">Layering workspace</button>
+ </nav>
 </header>
 <main>
-  <section class="intro">
-    <div><div class="eyebrow">Outdoor clothing, understood</div><h1>Build your layering system.</h1><p>Keep track of your kit, combine layers and explore how your clothing might perform across different conditions.</p></div>
-    <div class="status">● Prototype · Your data stays in this browser</div>
-  </section>
-  <nav>
-    <button class="active" data-tab="overview">Overview</button>
-    <button data-tab="wardrobe">My wardrobe</button>
-    <button data-tab="catalogue">Catalogue</button>
-    <button data-tab="builder">Outfit builder</button>
-  </nav>
+<section id="overview" class="panel active">
+ <div class="eyebrow">The project</div><h2>Useful information, not made-up ratings.</h2>
+ <p class="intro">Layerwise is being built around garment properties and real-world use. Manufacturer data, community knowledge and personal experience should be distinguishable rather than blended into one supposedly precise temperature rating.</p>
+ <div class="grid">
+  <div class="card span-4"><div class="eyebrow">Catalogue model</div><div class="stat">2</div><strong>Sources of entries</strong><p class="muted small">Curated records and community submissions, with their status visible.</p></div>
+  <div class="card span-4"><div class="eyebrow">Your equipment</div><div class="stat" id="wardrobeCount">0</div><strong>Items in your wardrobe</strong><p class="muted small">Add catalogue garments or record your own kit.</p></div>
+  <div class="card span-4"><div class="eyebrow">Data integrity</div><div class="stat">No</div><strong>Invented temperature ratings</strong><p class="muted small">Unknown values stay unknown until there is evidence.</p></div>
+  <div class="card span-8"><h3>How catalogue status works</h3><p><span class="pill verified">CURATED</span> Checked against manufacturer specifications or another identified reliable source.</p><p><span class="pill pending">UNVERIFIED</span> Submitted by a user; visible as a contribution, but not treated as confirmed product data.</p><p><span class="pill local">LOCAL ONLY</span> Saved in this browser for now. Shared contributions will require a connected database.</p></div>
+  <div class="card span-4"><h3>What comes next</h3><p class="muted small">First: build a trustworthy garment data structure. Then: connect shared storage, add review tools, and improve the estimator using garment properties and user feedback.</p><button class="primary" onclick="showTab('catalogue')">Explore catalogue</button></div>
+ </div>
+ <div class="notice warning"><strong>Important:</strong> This is a catalogue prototype, not a safety tool. It does not yet predict safe operating temperatures or replace weather judgement.</div>
+</section>
 
-  <section id="overview" class="panel active">
-    <div class="stats">
-      <div class="stat"><b id="statItems">0</b><span>Wardrobe items</span></div>
-      <div class="stat"><b id="statOutfits">0</b><span>Selected layers</span></div>
-      <div class="stat"><b>°C</b><span>Metric units</span></div>
-    </div>
-    <div class="grid">
-      <div class="card"><h2>Your kit, at a glance</h2><p class="sub">A quick look at the clothing you've added to your wardrobe.</p><div id="overviewList"></div></div>
-      <div class="card"><h2>Start here</h2><p class="sub">Layerwise is designed around your complete clothing system, not isolated jacket temperature ratings.</p>
-        <div class="item"><div class="item-icon">01</div><div class="item-main"><b>Add your clothing</b><small>Record the layers you actually own.</small></div></div>
-        <div class="item"><div class="item-icon">02</div><div class="item-main"><b>Build an outfit</b><small>Choose what you'd wear together.</small></div></div>
-        <div class="item"><div class="item-icon">03</div><div class="item-main"><b>Explore conditions</b><small>Compare activity, wind and temperature.</small></div></div>
-        <button class="btn" onclick="switchTab('wardrobe')">Add your first item →</button>
-      </div>
-    </div>
-    <div class="card"><h2>How the estimate works</h2><p class="sub">The current estimator is an experimental comparison tool. It uses your layer warmth ratings, activity level and wind exposure to produce a rough indication—not a tested safety or comfort rating. We'll improve the model as we add better garment specifications and real-world feedback.</p></div>
-  </section>
+<section id="catalogue" class="panel">
+ <div class="eyebrow">Reference library</div><h2>Clothing catalogue</h2>
+ <p class="intro">Browse the starter records, filter by category, and add garments to your wardrobe. The initial catalogue deliberately avoids pretending that unverified specifications are facts.</p>
+ <div class="toolbar"><input id="search" placeholder="Search garment, brand or material…" aria-label="Search catalogue"><select id="categoryFilter" aria-label="Filter category"><option value="">All categories</option><option>Base layer</option><option>Mid layer</option><option>Insulation</option><option>Shell</option><option>Trousers</option><option>Accessories</option><option>Footwear</option></select><select id="statusFilter" aria-label="Filter status"><option value="">All statuses</option><option value="curated">Curated</option><option value="unverified">Unverified</option></select></div>
+ <div class="card"><div id="catalogueTable"></div></div>
+ <div class="notice">Specifications are shown only when there is a source to support them. A blank field means “not recorded”, not zero performance.</div>
+</section>
 
-  <section id="wardrobe" class="panel">
-    <div class="grid">
-      <div class="card"><h2>My wardrobe</h2><p class="sub">Your personal kit list. Items are saved in this browser.</p><div id="wardrobeList"></div></div>
-      <div class="card"><h2>Add an item</h2><p class="sub">Add your own gear, including items that aren't in the catalogue.</p>
-        <label>Item name</label><input id="newName" placeholder="e.g. Merino 200 base layer">
-        <div class="row"><div><label>Brand</label><input id="newBrand" placeholder="e.g. Icebreaker"></div><div><label>Category</label><select id="newCategory"><option>Base layer</option><option>Midlayer / fleece</option><option>Insulation</option><option>Shell / waterproof</option><option>Softshell</option><option>Trousers</option><option>Leg insulation</option><option>Headwear</option><option>Gloves</option><option>Socks</option><option>Footwear</option><option>Other</option></select></div></div>
-        <div class="row"><div><label>Warmth (1–5)</label><select id="newWarmth"><option value="1">1 · Very light</option><option value="2">2 · Light</option><option value="3" selected>3 · Medium</option><option value="4">4 · Warm</option><option value="5">5 · Very warm</option></select></div><div><label>Weight (grams, optional)</label><input id="newWeight" type="number" min="0" placeholder="e.g. 320"></div></div>
-        <button class="btn" onclick="addManual()">+ Add to wardrobe</button>
-      </div>
+<section id="submit" class="panel">
+ <div class="eyebrow">Community contribution</div><h2>Submit a garment</h2>
+ <p class="intro">Add an item missing from the catalogue. Your submission will be labelled unverified until its specifications and source can be checked.</p>
+ <div class="grid">
+  <div class="card span-8">
+   <form id="submissionForm">
+    <div class="formgrid">
+     <div><label for="sBrand">Brand *</label><input id="sBrand" required placeholder="e.g. Rab"></div>
+     <div><label for="sModel">Model / product name *</label><input id="sModel" required placeholder="e.g. specific jacket name"></div>
+     <div><label for="sCategory">Category *</label><select id="sCategory" required><option value="">Choose…</option><option>Base layer</option><option>Mid layer</option><option>Insulation</option><option>Shell</option><option>Trousers</option><option>Accessories</option><option>Footwear</option></select></div>
+     <div><label for="sType">Insulation / fabric type</label><input id="sType" placeholder="e.g. down, synthetic, fleece, softshell"></div>
+     <div><label for="sWeight">Weight (g)</label><input id="sWeight" type="number" min="0" placeholder="If known"></div>
+     <div><label for="sFill">Insulation fill weight (g)</label><input id="sFill" type="number" min="0" placeholder="If known"></div>
+     <div><label for="sHH">Hydrostatic head (mm)</label><input id="sHH" type="number" min="0" placeholder="If known"></div>
+     <div><label for="sBreath">Breathability</label><input id="sBreath" placeholder="e.g. MVTR / RET, if known"></div>
+     <div class="full"><label for="sWind">Wind resistance / construction</label><input id="sWind" placeholder="Only if known; avoid guesses"></div>
+     <div class="full"><label for="sSource">Source URL or reference</label><input id="sSource" type="url" placeholder="Manufacturer page, product label, technical sheet…"></div>
+     <div class="full"><label for="sNotes">Notes</label><textarea id="sNotes" placeholder="Version, year, fit, personal observations, or where the information came from."></textarea></div>
     </div>
-  </section>
+    <div class="notice warning">Please don't guess technical values. Leave unknown fields blank. Personal experience is useful, but keep it separate from manufacturer specifications.</div>
+    <button class="primary" type="submit">Save contribution</button>
+   </form>
+  </div>
+  <div class="card span-4"><h3>What happens to it?</h3><ol class="muted small"><li>Your entry is saved in this browser.</li><li>It appears in the catalogue as <strong>unverified</strong>.</li><li>It can be checked against the linked source.</li><li>Only after review should it become a curated record.</li></ol><p class="small muted">This prototype does not yet send submissions to a central review queue. Other visitors will not see your local submission.</p></div>
+ </div>
+</section>
 
-  <section id="catalogue" class="panel">
-    <div class="card"><h2>Clothing catalogue</h2><p class="sub">A small starter catalogue of example products. Search it and add an item to your wardrobe. Product specifications are illustrative placeholders until verified against manufacturers' data.</p>
-      <div class="catalog-tools"><input id="search" placeholder="Search products, brands or categories…" oninput="renderCatalogue()"><select id="filter" onchange="renderCatalogue()"><option value="">All categories</option><option>Base layer</option><option>Midlayer / fleece</option><option>Insulation</option><option>Shell / waterproof</option><option>Softshell</option><option>Trousers</option></select></div>
-      <div id="catalogueList"></div>
-    </div>
-  </section>
+<section id="wardrobe" class="panel">
+ <div class="eyebrow">Personal kit</div><h2>My wardrobe</h2><p class="intro">Keep a record of your own equipment, including garments that aren't in the catalogue.</p>
+ <div class="grid">
+  <div class="card span-6"><h3>Add an item manually</h3>
+   <form id="wardrobeForm">
+    <label for="wName">Garment name *</label><input id="wName" required placeholder="e.g. Lightweight fleece">
+    <div class="fieldrow"><div><label for="wBrand">Brand</label><input id="wBrand" placeholder="Brand"></div><div><label for="wCategory">Category</label><select id="wCategory"><option>Base layer</option><option>Mid layer</option><option>Insulation</option><option>Shell</option><option>Trousers</option><option>Accessories</option><option>Footwear</option></select></div></div>
+    <div class="fieldrow"><div><label for="wWeight">Weight (g)</label><input id="wWeight" type="number" min="0"></div><div><label for="wWarmth">Personal warmth (1–5)</label><select id="wWarmth"><option value="">Not rated</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div></div>
+    <label for="wNotes">Notes</label><textarea id="wNotes" placeholder="Fit, age, condition, how you use it…"></textarea>
+    <p><button class="primary" type="submit">Add to wardrobe</button></p>
+   </form>
+  </div>
+  <div class="card span-6"><h3>Your items</h3><div id="wardrobeList"></div></div>
+ </div>
+</section>
 
-  <section id="builder" class="panel">
-    <div class="grid">
-      <div class="card"><h2>Build an outfit</h2><p class="sub">Select the items you plan to wear. You can mix upper-body, lower-body and accessories.</p><div id="builderList"></div></div>
-      <div class="card"><h2>Conditions</h2><p class="sub">Choose the conditions you want to explore.</p>
-        <label>Air temperature (°C)</label><input id="temp" type="number" value="2">
-        <label>Wind speed (km/h)</label><input id="wind" type="number" value="15" min="0">
-        <label>Activity</label><select id="activity"><option value="3">Fast uphill hiking</option><option value="2" selected>Normal hiking</option><option value="1">Slow walking</option><option value="-1">Standing around / breaks</option><option value="-3">Sitting / camping</option></select>
-        <label>Conditions</label><select id="wet"><option value="0">Dry</option><option value="1">Wet / raining</option></select>
-        <button class="btn" onclick="estimate()">Estimate my outfit</button>
-        <div id="estimateResult" class="result"><div class="eyebrow">Your field estimate</div><h3>Ready when you are.</h3><p>Select your clothing and conditions to see a rough comparison.</p></div>
-      </div>
-    </div>
-    <p class="notice">Safety note: this prototype cannot determine whether an outfit is safe for a particular mountain, exposure, forecast or person. Wind chill, rain, exertion, fatigue, fit, garment condition and individual physiology matter. Always carry spare insulation and waterproof protection, and use current forecasts and judgement.</p>
-  </section>
+<section id="builder" class="panel">
+ <div class="eyebrow">Planning workspace</div><h2>Layering workspace</h2><p class="intro">Start assembling an outfit from your wardrobe. This version is a planning aid only; it does not calculate a safe temperature rating.</p>
+ <div class="grid"><div class="card span-8"><h3>Select your layers</h3><div id="builderList"></div></div><div class="card span-4"><h3>Selected system</h3><div id="selectedList" class="muted small">No garments selected.</div><div class="notice warning">Future estimator inputs will include activity level, wind, precipitation, moisture, garment construction and personal calibration. No validated temperature output is available yet.</div></div></div>
+</section>
 </main>
-<footer><span>LAYERWISE / FIELD TOOLS 001</span><span>Independent prototype · Not affiliated with outdoor brands</span></footer>
-
+<footer>Layerwise is an independent prototype. Product names and specifications should be checked against the relevant manufacturer and product generation.</footer>
 <script>
-const starterCatalogue = [
- {id:"p1",name:"Merino 200 Long Sleeve",brand:"Example brand",category:"Base layer",warmth:2,weight:220},
- {id:"p2",name:"Grid Fleece Hoody",brand:"Example brand",category:"Midlayer / fleece",warmth:3,weight:300},
- {id:"p3",name:"Lightweight Synthetic Jacket",brand:"Example brand",category:"Insulation",warmth:4,weight:380},
- {id:"p4",name:"Down Insulation Jacket",brand:"Example brand",category:"Insulation",warmth:5,weight:320},
- {id:"p5",name:"Waterproof Hardshell",brand:"Example brand",category:"Shell / waterproof",warmth:1,weight:400},
- {id:"p6",name:"Wind-resistant Softshell",brand:"Example brand",category:"Softshell",warmth:2,weight:350},
- {id:"p7",name:"Trekking Trousers",brand:"Example brand",category:"Trousers",warmth:1,weight:280},
- {id:"p8",name:"Thermal Leggings",brand:"Example brand",category:"Leg insulation",warmth:2,weight:180},
- {id:"p9",name:"Merino Beanie",brand:"Example brand",category:"Headwear",warmth:2,weight:55},
- {id:"p10",name:"Insulated Gloves",brand:"Example brand",category:"Gloves",warmth:3,weight:90}
+const seed = [
+ {id:"seed-1",brand:"Example brand",name:"Lightweight synthetic base layer",category:"Base layer",type:"Synthetic knit",weight:"",fill:"",hh:"",breath:"",wind:"",source:"",notes:"Illustrative placeholder only; replace with a verified product record.",status:"unverified",origin:"starter"},
+ {id:"seed-2",brand:"Example brand",name:"Grid fleece pullover",category:"Mid layer",type:"Grid fleece",weight:"",fill:"",hh:"",breath:"",wind:"",source:"",notes:"Illustrative placeholder only; replace with a verified product record.",status:"unverified",origin:"starter"},
+ {id:"seed-3",brand:"Example brand",name:"Lightweight synthetic insulated jacket",category:"Insulation",type:"Synthetic insulation",weight:"",fill:"",hh:"",breath:"",wind:"",source:"",notes:"Illustrative placeholder only; replace with a verified product record.",status:"unverified",origin:"starter"},
+ {id:"seed-4",brand:"Example brand",name:"Waterproof hardshell jacket",category:"Shell",type:"Waterproof membrane",weight:"",fill:"",hh:"",breath:"",wind:"",source:"",notes:"Illustrative placeholder only; replace with a verified product record.",status:"unverified",origin:"starter"},
+ {id:"seed-5",brand:"Example brand",name:"Softshell trousers",category:"Trousers",type:"Woven stretch fabric",weight:"",fill:"",hh:"",breath:"",wind:"",source:"",notes:"Illustrative placeholder only; replace with a verified product record.",status:"unverified",origin:"starter"}
 ];
-let wardrobe = JSON.parse(localStorage.getItem("layerwiseWardrobe") || "[]");
-let selected = [];
-function save(){localStorage.setItem("layerwiseWardrobe",JSON.stringify(wardrobe));}
-function switchTab(id){document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id===id));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===id));if(id==="builder")renderBuilder();if(id==="catalogue")renderCatalogue();window.scrollTo({top:0,behavior:"smooth"});}
-document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>switchTab(b.dataset.tab)));
-function addManual(){const name=document.getElementById("newName").value.trim();if(!name){alert("Please enter an item name.");return;}wardrobe.push({id:"u"+Date.now(),name,brand:document.getElementById("newBrand").value.trim()||"My gear",category:document.getElementById("newCategory").value,warmth:Number(document.getElementById("newWarmth").value),weight:Number(document.getElementById("newWeight").value)||null});save();document.getElementById("newName").value="";document.getElementById("newBrand").value="";document.getElementById("newWeight").value="";renderAll();}
-function addProduct(id){const p=starterCatalogue.find(x=>x.id===id);if(!p)return;if(wardrobe.some(x=>x.catalogueId===id)){alert("That item is already in your wardrobe.");return;}wardrobe.push({...p,id:"u"+Date.now(),catalogueId:id});save();renderAll();}
-function removeItem(id){wardrobe=wardrobe.filter(x=>x.id!==id);selected=selected.filter(x=>x!==id);save();renderAll();}
-function iconFor(cat){return ({'Base layer':'◌','Midlayer / fleece':'▤','Insulation':'▧','Shell / waterproof':'◇','Softshell':'◈','Trousers':'╱','Leg insulation':'≋','Headwear':'⌂','Gloves':'✳','Socks':'∿','Footwear':'⌁'})[cat]||'＋';}
-function itemHTML(x,remove=true){return `<div class="item"><div class="item-icon">${iconFor(x.category)}</div><div class="item-main"><b>${escapeHTML(x.name)}</b><small>${escapeHTML(x.brand||"")} · ${escapeHTML(x.category)} · warmth ${x.warmth}/5${x.weight?` · ${x.weight} g`:""}</small></div>${remove?`<button class="btn ghost small" onclick="removeItem('${x.id}')">Remove</button>`:""}</div>`;}
-function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function renderWardrobe(){const el=document.getElementById("wardrobeList");el.innerHTML=wardrobe.length?wardrobe.map(x=>itemHTML(x)).join(""):'<div class="empty">Your wardrobe is empty. Add an item manually or browse the catalogue.</div>';document.getElementById("statItems").textContent=wardrobe.length;document.getElementById("overviewList").innerHTML=wardrobe.length?wardrobe.slice(0,5).map(x=>itemHTML(x,false)).join(""):'<div class="empty">No clothing added yet.</div>';}
-function renderCatalogue(){const q=(document.getElementById("search").value||"").toLowerCase();const f=document.getElementById("filter").value;const list=starterCatalogue.filter(x=>(!f||x.category===f)&&[x.name,x.brand,x.category].join(" ").toLowerCase().includes(q));document.getElementById("catalogueList").innerHTML=list.map(x=>`<div class="item"><div class="item-icon">${iconFor(x.category)}</div><div class="item-main"><b>${x.name}</b><small>${x.brand} · ${x.category} · example warmth ${x.warmth}/5</small></div><button class="btn small" onclick="addProduct('${x.id}')">${wardrobe.some(w=>w.catalogueId===x.id)? "Added":"Add +"}</button></div>`).join("")||'<div class="empty">No matching products.</div>';}
-function renderBuilder(){document.getElementById("builderList").innerHTML=wardrobe.length?wardrobe.map(x=>`<label class="checkrow"><input type="checkbox" value="${x.id}" ${selected.includes(x.id)?"checked":""} onchange="toggleSelected('${x.id}',this.checked)"><span><b>${escapeHTML(x.name)}</b><br><small style="color:#748078">${escapeHTML(x.category)} · warmth ${x.warmth}/5</small></span></label>`).join(""):'<div class="empty">Add clothing to your wardrobe first.</div>';document.getElementById("statOutfits").textContent=selected.length;}
-function toggleSelected(id,on){selected=on?[...selected,id]:selected.filter(x=>x!==id);document.getElementById("statOutfits").textContent=selected.length;}
-function estimate(){const items=wardrobe.filter(x=>selected.includes(x.id));if(!items.length){alert("Select at least one item first.");return;}const temp=Number(document.getElementById("temp").value);const wind=Number(document.getElementById("wind").value);const activity=Number(document.getElementById("activity").value);const wet=Number(document.getElementById("wet").value);const warmth=items.reduce((s,x)=>s+x.warmth,0);const shell=items.some(x=>["Shell / waterproof","Softshell"].includes(x.category));const insulation=items.filter(x=>x.category==="Insulation").reduce((s,x)=>s+x.warmth,0);const windPenalty=Math.max(0,wind-10)*0.055*(shell?0.45:1);const wetPenalty=wet?2.2:0;const score=warmth*1.65+activity-windPenalty-wetPenalty;let verdict=score>=12?"Likely warm":score>=8?"Potentially comfortable":score>=4?"Cool — monitor yourself":"Cold risk — add insulation";let bandLow=Math.round(-5+warmth*2.4+activity-windPenalty-wetPenalty);let bandHigh=bandLow+9;let context=temp>bandHigh?"Your selected layers may feel too warm at this temperature.":temp<bandLow?"Your selected layers may not provide enough warmth for these conditions.":"The temperature falls within this rough comparison band.";document.getElementById("estimateResult").innerHTML=`<div class="eyebrow">Your field estimate · experimental</div><h3>${verdict}</h3><div class="range">${bandLow}° to ${bandHigh}°C</div><p>Very rough illustrative comfort band for this combination and activity. ${context}</p><p>${items.length} selected items · ${wind} km/h wind · ${wet?"wet conditions":"dry conditions"}</p><p style="font-size:11px;opacity:.8">Not a validated prediction. The model is not calibrated to garment test data or your personal physiology.</p>`;}
-function renderAll(){renderWardrobe();renderCatalogue();renderBuilder();}
-renderAll();
+const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}};
+const save=(key,value)=>localStorage.setItem(key,JSON.stringify(value));
+let contributions=read("layerwise_contributions",[]), wardrobe=read("layerwise_wardrobe",[]), selected=read("layerwise_selected",[]);
+let catalogue=[...seed,...contributions];
+function showTab(id){document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id===id));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===id));if(id==="catalogue")renderCatalogue();if(id==="wardrobe")renderWardrobe();if(id==="builder")renderBuilder();window.scrollTo({top:0,behavior:"smooth"})}
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
+function safe(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function statusPill(item){return item.status==="curated"?'<span class="pill verified">CURATED</span>':'<span class="pill pending">UNVERIFIED</span>'}
+function renderCatalogue(){
+ catalogue=[...seed,...contributions];const q=document.getElementById("search").value.toLowerCase(),cat=document.getElementById("categoryFilter").value,st=document.getElementById("statusFilter").value;
+ const items=catalogue.filter(x=>(!q||[x.brand,x.name,x.category,x.type,x.notes].join(" ").toLowerCase().includes(q))&&(!cat||x.category===cat)&&(!st||x.status===st));
+ const root=document.getElementById("catalogueTable");if(!items.length){root.innerHTML='<div class="empty">No garments match those filters.</div>';return}
+ root.innerHTML='<table><thead><tr><th>Garment</th><th>Category</th><th>Recorded specifications</th><th>Status</th><th></th></tr></thead><tbody>'+items.map(x=>`<tr><td><div class="product"><strong>${safe(x.brand)} · ${safe(x.name)}</strong><span class="specs">${safe(x.notes||"")}</span>${x.source?`<a class="small" href="${safe(x.source)}" target="_blank" rel="noopener">Source ↗</a>`:""}</div></td><td>${safe(x.category)}</td><td class="specs">${x.weight?`Weight: ${safe(x.weight)} g<br>`:""}${x.fill?`Fill: ${safe(x.fill)} g<br>`:""}${x.hh?`HH: ${safe(x.hh)} mm<br>`:""}${safe(x.type||"")}${x.breath?`<br>Breathability: ${safe(x.breath)}`:""}${x.wind?`<br>Wind: ${safe(x.wind)}`:""}</td><td>${statusPill(x)}</td><td><button class="secondary" onclick="addToWardrobe('${safe(x.id)}')">Add to wardrobe</button></td></tr>`).join("")+'</tbody></table>';
+}
+document.getElementById("search").addEventListener("input",renderCatalogue);document.getElementById("categoryFilter").addEventListener("change",renderCatalogue);document.getElementById("statusFilter").addEventListener("change",renderCatalogue);
+document.getElementById("submissionForm").addEventListener("submit",e=>{e.preventDefault();const v=id=>document.getElementById(id).value.trim();const item={id:"community-"+Date.now(),brand:v("sBrand"),name:v("sModel"),category:v("sCategory"),type:v("sType"),weight:v("sWeight"),fill:v("sFill"),hh:v("sHH"),breath:v("sBreath"),wind:v("sWind"),source:v("sSource"),notes:v("sNotes"),status:"unverified",origin:"community"};contributions.push(item);save("layerwise_contributions",contributions);e.target.reset();alert("Contribution saved in this browser and marked UNVERIFIED.");showTab("catalogue");});
+function addToWardrobe(id){const x=catalogue.find(a=>a.id===id);if(!x)return;if(wardrobe.some(a=>a.catalogueId===id)){alert("That item is already in your wardrobe.");return}wardrobe.push({id:"w-"+Date.now(),catalogueId:id,name:x.name,brand:x.brand,category:x.category,weight:x.weight,warmth:"",notes:"Added from catalogue"});save("layerwise_wardrobe",wardrobe);renderCatalogue();updateCount();alert("Added to your wardrobe.");}
+document.getElementById("wardrobeForm").addEventListener("submit",e=>{e.preventDefault();const v=id=>document.getElementById(id).value.trim();wardrobe.push({id:"w-"+Date.now(),name:v("wName"),brand:v("wBrand"),category:v("wCategory"),weight:v("wWeight"),warmth:v("wWarmth"),notes:v("wNotes")});save("layerwise_wardrobe",wardrobe);e.target.reset();renderWardrobe();updateCount();});
+function renderWardrobe(){const root=document.getElementById("wardrobeList");if(!wardrobe.length){root.innerHTML='<div class="empty">Your wardrobe is empty. Add an item or browse the catalogue.</div>';return}root.innerHTML=wardrobe.map(x=>`<div style="padding:10px 0;border-bottom:1px solid var(--line)"><strong>${safe(x.brand?x.brand+" · ":"")}${safe(x.name)}</strong><div class="small muted">${safe(x.category)}${x.weight?" · "+safe(x.weight)+" g":""}${x.warmth?" · personal warmth "+safe(x.warmth)+"/5":""}</div>${x.notes?`<div class="small muted">${safe(x.notes)}</div>`:""}<div class="actions" style="margin-top:7px"><button class="secondary" onclick="toggleSelected('${safe(x.id)}')">${selected.includes(x.id)?"Remove from outfit":"Add to outfit"}</button><button class="secondary" onclick="removeWardrobe('${safe(x.id)}')">Remove</button></div></div>`).join("")}
+function removeWardrobe(id){wardrobe=wardrobe.filter(x=>x.id!==id);selected=selected.filter(x=>x!==id);save("layerwise_wardrobe",wardrobe);save("layerwise_selected",selected);renderWardrobe();updateCount()}
+function toggleSelected(id){selected=selected.includes(id)?selected.filter(x=>x!==id):[...selected,id];save("layerwise_selected",selected);renderWardrobe();renderBuilder()}
+function renderBuilder(){const root=document.getElementById("builderList");if(!wardrobe.length){root.innerHTML='<div class="empty">Add garments to your wardrobe first.</div>';document.getElementById("selectedList").textContent="No garments selected.";return}root.innerHTML=wardrobe.map(x=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)"><div><strong>${safe(x.brand?x.brand+" · ":"")}${safe(x.name)}</strong><div class="small muted">${safe(x.category)}</div></div><label style="margin:0;white-space:nowrap"><input type="checkbox" style="width:auto" ${selected.includes(x.id)?"checked":""} onchange="toggleSelected('${safe(x.id)}')"> Select</label></div>`).join("");const chosen=wardrobe.filter(x=>selected.includes(x.id));document.getElementById("selectedList").innerHTML=chosen.length?chosen.map(x=>`<p><strong>${safe(x.name)}</strong><br><span class="muted">${safe(x.category)}</span></p>`).join(""):"No garments selected."}
+function updateCount(){document.getElementById("wardrobeCount").textContent=wardrobe.length}
+renderCatalogue();renderWardrobe();renderBuilder();updateCount();
 </script>
-</body>
-</html>
+</body></html>

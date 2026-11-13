@@ -33,16 +33,16 @@ footer{max-width:1120px;margin:0 auto;padding:0 22px 35px;color:var(--muted);fon
 <header>
  <div class="topline">
    <div class="brand">Layerwise / Field system</div>
-   <div class="version" id="dbBadge">V4 · Ready</div>
+   <div class="version" id="dbBadge">V4 · Active</div>
  </div>
  <h1>Build a system.<br>Understand every layer.</h1>
  <p>A practical clothing catalogue and layering workspace for people who spend time outside.</p>
  <nav aria-label="Main navigation">
-  <button type="button" class="active" data-tab="overview">Overview</button>
-  <button type="button" data-tab="catalogue">Clothing catalogue</button>
-  <button type="button" data-tab="submit">Submit a garment</button>
-  <button type="button" data-tab="wardrobe">My wardrobe</button>
-  <button type="button" data-tab="builder">Layering workspace</button>
+  <button type="button" class="active" onclick="showTab('overview')">Overview</button>
+  <button type="button" onclick="showTab('catalogue')">Clothing catalogue</button>
+  <button type="button" onclick="showTab('submit')">Submit a garment</button>
+  <button type="button" onclick="showTab('wardrobe')">My wardrobe</button>
+  <button type="button" onclick="showTab('builder')">Layering workspace</button>
  </nav>
 </header>
 <main>
@@ -50,7 +50,7 @@ footer{max-width:1120px;margin:0 auto;padding:0 22px 35px;color:var(--muted);fon
  <div class="eyebrow">The project</div><h2>Useful information, not made-up ratings.</h2>
  <p class="intro">Layerwise is being built around garment properties and real-world use. Manufacturer data, community knowledge and personal experience should be distinguishable rather than blended into one supposedly precise temperature rating.</p>
  <div class="grid">
-  <div class="card span-4"><div class="eyebrow">Shared catalogue</div><div class="stat" id="catalogueCount">3</div><strong>Recorded garments</strong><p class="muted small">Curated records and community submissions stored in Supabase.</p></div>
+  <div class="card span-4"><div class="eyebrow">Shared catalogue</div><div class="stat" id="catalogueCount">3</div><strong>Recorded garments</strong><p class="muted small">Curated records and community submissions.</p></div>
   <div class="card span-4"><div class="eyebrow">Your equipment</div><div class="stat" id="wardrobeCount">0</div><strong>Items in your wardrobe</strong><p class="muted small">Add catalogue garments or record your own kit locally.</p></div>
   <div class="card span-4"><div class="eyebrow">Data integrity</div><div class="stat">2</div><strong>Clear source tiers</strong><p class="muted small">Verified manufacturer specs stay separate from unverified entries.</p></div>
   <div class="card span-8"><h3>How catalogue status works</h3><p><span class="pill verified">CURATED</span> Checked against manufacturer specifications or another identified reliable source.</p><p><span class="pill pending">UNVERIFIED</span> Submitted by a user; visible to everyone as a contribution, but not treated as confirmed product data.</p><p><span class="pill local">LOCAL WARDROBE</span> Your personal gear and outfit selections are saved privately in your browser.</p></div>
@@ -63,8 +63,8 @@ footer{max-width:1120px;margin:0 auto;padding:0 22px 35px;color:var(--muted);fon
  <div class="eyebrow">Reference library</div><h2>Clothing catalogue</h2>
  <p class="intro">Browse the shared catalogue, filter by category or verification status, and add garments to your wardrobe.</p>
  <div class="toolbar">
-   <input id="search" placeholder="Search garment, brand or material…" aria-label="Search catalogue">
-   <select id="categoryFilter" aria-label="Filter category">
+   <input id="search" placeholder="Search garment, brand or material…" oninput="renderCatalogue()">
+   <select id="categoryFilter" onchange="renderCatalogue()">
      <option value="">All categories</option>
      <option value="Base layer">Base layer</option>
      <option value="Mid layer">Mid layer</option>
@@ -74,7 +74,7 @@ footer{max-width:1120px;margin:0 auto;padding:0 22px 35px;color:var(--muted);fon
      <option value="Accessories">Accessories</option>
      <option value="Footwear">Footwear</option>
    </select>
-   <select id="statusFilter" aria-label="Filter status">
+   <select id="statusFilter" onchange="renderCatalogue()">
      <option value="">All statuses</option>
      <option value="curated">Curated</option>
      <option value="unverified">Unverified</option>
@@ -89,25 +89,25 @@ footer{max-width:1120px;margin:0 auto;padding:0 22px 35px;color:var(--muted);fon
  <p class="intro">Add an item missing from the catalogue. Your submission will be saved to the shared database and labelled unverified until its specifications and source can be checked.</p>
  <div class="grid">
   <div class="card span-8">
-   <form id="submissionForm">
+   <form id="submissionForm" onsubmit="handleSubmission(event)">
     <div class="formgrid">
      <div><label for="sBrand">Brand *</label><input id="sBrand" required placeholder="e.g. Rab"></div>
      <div><label for="sModel">Model / product name *</label><input id="sModel" required placeholder="e.g. Microlight Alpine Jacket"></div>
      <div><label for="sCategory">Category *</label><select id="sCategory" required><option value="">Choose…</option><option value="Base Layer">Base layer</option><option value="Mid Layer">Mid layer</option><option value="Insulated Layer">Insulation</option><option value="Outer Shell">Shell</option><option value="Trousers">Trousers</option><option value="Accessories">Accessories</option><option value="Footwear">Footwear</option></select></div>
-     <div><label for="sType">Insulation / fabric type</label><input id="sType" placeholder="e.g. 700FP down, synthetic, fleece, Gore-Tex"></div>
+     <div><label for="sType">Insulation / fabric type</label><input id="sType" placeholder="e.g. 700FP down, synthetic, fleece"></div>
      <div><label for="sWeight">Weight (g)</label><input id="sWeight" type="number" min="0" placeholder="If known"></div>
      <div><label for="sFill">Insulation fill weight (g)</label><input id="sFill" type="number" min="0" placeholder="If known"></div>
      <div><label for="sHH">Hydrostatic head (mm)</label><input id="sHH" type="number" min="0" placeholder="If known"></div>
      <div><label for="sBreath">Breathability</label><input id="sBreath" placeholder="e.g. MVTR / RET, if known"></div>
      <div class="full"><label for="sWind">Wind resistance / construction</label><input id="sWind" placeholder="Only if known; avoid guesses"></div>
-     <div class="full"><label for="sSource">Source URL or reference</label><input id="sSource" type="url" placeholder="Manufacturer page, product label, technical sheet…"></div>
-     <div class="full"><label for="sNotes">Notes / Intended activity</label><textarea id="sNotes" placeholder="Version, year, intended conditions, or where the information came from."></textarea></div>
+     <div class="full"><label for="sSource">Source URL or reference</label><input id="sSource" type="url" placeholder="Manufacturer page, product label…"></div>
+     <div class="full"><label for="sNotes">Notes / Intended activity</label><textarea id="sNotes" placeholder="Version, year, intended conditions…"></textarea></div>
     </div>
     <div class="notice warning">Please don't guess technical values. Leave unknown fields blank.</div>
     <button type="submit" class="primary" id="submitBtn">Publish contribution</button>
    </form>
   </div>
-  <div class="card span-4"><h3>What happens to it?</h3><ol class="muted small" style="padding-left:18px;line-height:1.7"><li>Your entry is saved to the shared Supabase database.</li><li>It appears immediately in the catalogue as <strong>unverified</strong> for all visitors.</li><li>It can be checked against the linked source.</li><li>Once verified in Supabase, it upgrades to a <strong>curated</strong> record.</li></ol></div>
+  <div class="card span-4"><h3>What happens to it?</h3><ol class="muted small" style="padding-left:18px;line-height:1.7"><li>Your entry is saved to Supabase.</li><li>It appears immediately as <strong>unverified</strong> for all visitors.</li><li>Once verified, it upgrades to a <strong>curated</strong> record.</li></ol></div>
  </div>
 </section>
 
@@ -115,11 +115,11 @@ footer{max-width:1120px;margin:0 auto;padding:0 22px 35px;color:var(--muted);fon
  <div class="eyebrow">Personal kit</div><h2>My wardrobe</h2><p class="intro">Keep a record of your own equipment, including garments that aren't in the catalogue.</p>
  <div class="grid">
   <div class="card span-6"><h3>Add an item manually</h3>
-   <form id="wardrobeForm">
+   <form id="wardrobeForm" onsubmit="handleWardrobeSubmit(event)">
     <label for="wName">Garment name *</label><input id="wName" required placeholder="e.g. Lightweight grid fleece">
     <div class="fieldrow"><div><label for="wBrand">Brand</label><input id="wBrand" placeholder="Brand"></div><div><label for="wCategory">Category</label><select id="wCategory"><option>Base layer</option><option>Mid layer</option><option>Insulation</option><option>Shell</option><option>Trousers</option><option>Accessories</option><option>Footwear</option></select></div></div>
     <div class="fieldrow"><div><label for="wWeight">Weight (g)</label><input id="wWeight" type="number" min="0"></div><div><label for="wWarmth">Personal warmth (1–5)</label><select id="wWarmth"><option value="">Not rated</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div></div>
-    <label for="wNotes">Notes</label><textarea id="wNotes" placeholder="Fit, age, condition, how you use it…"></textarea>
+    <label for="wNotes">Notes</label><textarea id="wNotes" placeholder="Fit, age, condition…"></textarea>
     <p><button type="submit" class="primary">Add to wardrobe</button></p>
    </form>
   </div>
@@ -139,7 +139,7 @@ footer{max-width:1120px;margin:0 auto;padding:0 22px 35px;color:var(--muted);fon
     <div class="fieldrow">
       <div>
         <label for="estActivity">Activity level</label>
-        <select id="estActivity">
+        <select id="estActivity" onchange="renderBuilder()">
           <option value="static">Static / Camp</option>
           <option value="moderate" selected>Steady hiking</option>
           <option value="high">Fast ascent</option>
@@ -147,7 +147,7 @@ footer{max-width:1120px;margin:0 auto;padding:0 22px 35px;color:var(--muted);fon
       </div>
       <div>
         <label for="estWind">Wind exposure</label>
-        <select id="estWind">
+        <select id="estWind" onchange="renderBuilder()">
           <option value="sheltered">Sheltered</option>
           <option value="breezy" selected>Exposed ridge</option>
           <option value="gale">Gale / Summit</option>
@@ -155,7 +155,7 @@ footer{max-width:1120px;margin:0 auto;padding:0 22px 35px;color:var(--muted);fon
       </div>
     </div>
     <label for="estBodyFat">Body fat % (optional)</label>
-    <input id="estBodyFat" type="number" min="4" max="55" placeholder="e.g. 18">
+    <input id="estBodyFat" type="number" min="4" max="55" placeholder="e.g. 18" oninput="saveBodyFat(this.value)">
 
     <div id="estimatorSummary" class="est-box"></div>
     <h3 style="margin-top:16px">Active layers</h3>
@@ -164,7 +164,7 @@ footer{max-width:1120px;margin:0 auto;padding:0 22px 35px;color:var(--muted);fon
  </div>
 </section>
 </main>
-<footer>Layerwise is an independent prototype. Product names and specifications should be checked against the relevant manufacturer and product generation.</footer>
+<footer>Layerwise is an independent prototype. Product names and specifications should be checked against relevant manufacturers.</footer>
 
 <script>
 // =========================================================
@@ -189,9 +189,7 @@ try {
   selected = JSON.parse(localStorage.getItem("layerwise_selected") || "[]");
   const savedBF = localStorage.getItem("layerwise_bf");
   if (savedBF) document.getElementById("estBodyFat").value = savedBF;
-} catch (e) {
-  console.error("Storage error:", e);
-}
+} catch (e) {}
 
 function safe(v) {
   return String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -204,8 +202,8 @@ function normalizeCategory(cat) {
   if (c.includes("insul")) return "Insulation";
   if (c.includes("shell")) return "Shell";
   if (c.includes("trouser") || c.includes("pant")) return "Trousers";
-  if (c.includes("foot") || c.includes("sock") || c.includes("boot")) return "Footwear";
-  if (c.includes("access") || c.includes("glove") || c.includes("beanie") || c.includes("balaclava")) return "Accessories";
+  if (c.includes("foot") || c.includes("sock")) return "Footwear";
+  if (c.includes("access") || c.includes("glove") || c.includes("beanie")) return "Accessories";
   return cat || "Other";
 }
 
@@ -214,153 +212,170 @@ function statusPill(item) {
 }
 
 function showTab(id) {
-  document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === id));
-  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("active", b.dataset.tab === id));
-  if (id === "catalogue") renderCatalogue();
-  if (id === "wardrobe") renderWardrobe();
-  if (id === "builder") renderBuilder();
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  try {
+    document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === id));
+    const buttons = document.querySelectorAll("nav button");
+    const tabNames = ["overview", "catalogue", "submit", "wardrobe", "builder"];
+    buttons.forEach((b, idx) => {
+      b.classList.toggle("active", tabNames[idx] === id);
+    });
+    if (id === "catalogue") renderCatalogue();
+    if (id === "wardrobe") renderWardrobe();
+    if (id === "builder") renderBuilder();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (err) {
+    console.error("Tab switch error:", err);
+  }
 }
-
-// Bind navigation clicks immediately
-document.querySelectorAll("nav button").forEach(b => {
-  b.addEventListener("click", () => showTab(b.dataset.tab));
-});
 
 function renderCatalogue() {
-  const q = (document.getElementById("search").value || "").toLowerCase();
-  const cat = document.getElementById("categoryFilter").value;
-  const st = document.getElementById("statusFilter").value;
+  try {
+    const q = (document.getElementById("search").value || "").toLowerCase();
+    const cat = document.getElementById("categoryFilter").value;
+    const st = document.getElementById("statusFilter").value;
 
-  const items = catalogue.filter(x => {
-    const normCat = normalizeCategory(x.category);
-    const haystack = [x.brand, x.model, x.category, x.insulation, x.fabric, x.activity].join(" ").toLowerCase();
-    const matchesQ = !q || haystack.includes(q);
-    const matchesCat = !cat || normCat === cat;
-    const matchesSt = !st || (st === "curated" && x.verified) || (st === "unverified" && !x.verified);
-    return matchesQ && matchesCat && matchesSt;
-  });
-
-  const root = document.getElementById("catalogueTable");
-  if (!items.length) {
-    root.innerHTML = '<div class="empty">No garments match those filters.</div>';
-    return;
-  }
-
-  root.innerHTML = '<table><thead><tr><th>Garment</th><th>Category</th><th>Recorded specifications</th><th>Status</th><th></th></tr></thead><tbody>' +
-    items.map(x => {
+    const items = catalogue.filter(x => {
       const normCat = normalizeCategory(x.category);
-      const specs = [];
-      if (x.weight_g) specs.push(`Weight: ${safe(x.weight_g)} g`);
-      if (x.insulation && x.insulation !== "None") specs.push(`Insulation: ${safe(x.insulation)}`);
-      if (x.fabric) specs.push(`Fabric: ${safe(x.fabric)}`);
-      if (x.waterproofing) specs.push(`Water: ${safe(x.waterproofing)}`);
-      if (x.wind_resistance) specs.push(`Wind: ${safe(x.wind_resistance)}`);
+      const haystack = [x.brand, x.model, x.category, x.insulation, x.fabric, x.activity].join(" ").toLowerCase();
+      const matchesQ = !q || haystack.includes(q);
+      const matchesCat = !cat || normCat === cat;
+      const matchesSt = !st || (st === "curated" && x.verified) || (st === "unverified" && !x.verified);
+      return matchesQ && matchesCat && matchesSt;
+    });
 
-      return `<tr>
-        <td>
-          <div class="product">
-            <strong>${safe(x.brand)} · ${safe(x.model)}</strong>
-            <span class="specs">${safe(x.activity || "")}</span>
-            ${x.source_url ? `<a class="small" href="${safe(x.source_url)}" target="_blank" rel="noopener">Source ↗</a>` : ""}
-          </div>
-        </td>
-        <td>${safe(normCat)}</td>
-        <td class="specs">${specs.join("<br>") || "No specs recorded"}</td>
-        <td>${statusPill(x)}</td>
-        <td><button type="button" class="secondary" data-add-id="${safe(x.id)}">Add to wardrobe</button></td>
-      </tr>`;
-    }).join("") + '</tbody></table>';
-}
+    const root = document.getElementById("catalogueTable");
+    if (!items.length) {
+      root.innerHTML = '<div class="empty">No garments match those filters.</div>';
+      return;
+    }
 
-document.getElementById("search").addEventListener("input", renderCatalogue);
-document.getElementById("categoryFilter").addEventListener("change", renderCatalogue);
-document.getElementById("statusFilter").addEventListener("change", renderCatalogue);
+    root.innerHTML = '<table><thead><tr><th>Garment</th><th>Category</th><th>Recorded specifications</th><th>Status</th><th></th></tr></thead><tbody>' +
+      items.map(x => {
+        const normCat = normalizeCategory(x.category);
+        const specs = [];
+        if (x.weight_g) specs.push(`Weight: ${safe(x.weight_g)} g`);
+        if (x.insulation && x.insulation !== "None") specs.push(`Insulation: ${safe(x.insulation)}`);
+        if (x.fabric) specs.push(`Fabric: ${safe(x.fabric)}`);
+        if (x.waterproofing) specs.push(`Water: ${safe(x.waterproofing)}`);
+        if (x.wind_resistance) specs.push(`Wind: ${safe(x.wind_resistance)}`);
 
-// Global click listener for catalogue "Add to wardrobe" buttons
-document.addEventListener("click", e => {
-  const addBtn = e.target.closest("[data-add-id]");
-  if (addBtn) {
-    addToWardrobe(addBtn.dataset.addId);
+        return `<tr>
+          <td>
+            <div class="product">
+              <strong>${safe(x.brand)} · ${safe(x.model)}</strong>
+              <span class="specs">${safe(x.activity || "")}</span>
+              ${x.source_url ? `<a class="small" href="${safe(x.source_url)}" target="_blank" rel="noopener">Source ↗</a>` : ""}
+            </div>
+          </td>
+          <td>${safe(normCat)}</td>
+          <td class="specs">${specs.join("<br>") || "No specs recorded"}</td>
+          <td>${statusPill(x)}</td>
+          <td><button type="button" class="secondary" onclick="addToWardrobe('${safe(x.id)}')">Add to wardrobe</button></td>
+        </tr>`;
+      }).join("") + '</tbody></table>';
+  } catch (err) {
+    console.error("renderCatalogue error:", err);
   }
-});
+}
 
 function addToWardrobe(id) {
-  const x = catalogue.find(a => String(a.id) === String(id));
-  if (!x) return;
-  if (wardrobe.some(a => String(a.catalogueId) === String(id))) {
-    alert("That item is already in your wardrobe.");
-    return;
+  try {
+    const x = catalogue.find(a => String(a.id) === String(id));
+    if (!x) return;
+    if (wardrobe.some(a => String(a.catalogueId) === String(id))) {
+      alert("That item is already in your wardrobe.");
+      return;
+    }
+    wardrobe.push({
+      id: "w-" + Date.now(),
+      catalogueId: x.id,
+      name: x.model,
+      brand: x.brand,
+      category: normalizeCategory(x.category),
+      weight: x.weight_g || "",
+      insulation: x.insulation || "",
+      waterproofing: x.waterproofing || "",
+      wind: x.wind_resistance || "",
+      warmth: "",
+      notes: x.activity || "Added from catalogue"
+    });
+    localStorage.setItem("layerwise_wardrobe", JSON.stringify(wardrobe));
+    updateCount();
+    alert("Added to your wardrobe.");
+  } catch (err) {
+    console.error("addToWardrobe error:", err);
   }
-  wardrobe.push({
-    id: "w-" + Date.now(),
-    catalogueId: x.id,
-    name: x.model,
-    brand: x.brand,
-    category: normalizeCategory(x.category),
-    weight: x.weight_g || "",
-    insulation: x.insulation || "",
-    waterproofing: x.waterproofing || "",
-    wind: x.wind_resistance || "",
-    warmth: "",
-    notes: x.activity || "Added from catalogue"
-  });
-  localStorage.setItem("layerwise_wardrobe", JSON.stringify(wardrobe));
-  updateCount();
-  alert("Added to your wardrobe.");
 }
 
-document.getElementById("wardrobeForm").addEventListener("submit", e => {
+function handleWardrobeSubmit(e) {
   e.preventDefault();
-  const v = id => document.getElementById(id).value.trim();
-  wardrobe.push({
-    id: "w-" + Date.now(),
-    name: v("wName"),
-    brand: v("wBrand"),
-    category: v("wCategory"),
-    weight: v("wWeight"),
-    warmth: v("wWarmth"),
-    notes: v("wNotes")
-  });
-  localStorage.setItem("layerwise_wardrobe", JSON.stringify(wardrobe));
-  e.target.reset();
-  renderWardrobe();
-  updateCount();
-});
+  try {
+    const v = id => document.getElementById(id).value.trim();
+    wardrobe.push({
+      id: "w-" + Date.now(),
+      name: v("wName"),
+      brand: v("wBrand"),
+      category: v("wCategory"),
+      weight: v("wWeight"),
+      warmth: v("wWarmth"),
+      notes: v("wNotes")
+    });
+    localStorage.setItem("layerwise_wardrobe", JSON.stringify(wardrobe));
+    e.target.reset();
+    renderWardrobe();
+    updateCount();
+  } catch (err) {
+    console.error("handleWardrobeSubmit error:", err);
+  }
+}
 
 function renderWardrobe() {
-  const root = document.getElementById("wardrobeList");
-  if (!wardrobe.length) {
-    root.innerHTML = '<div class="empty">Your wardrobe is empty. Add an item or browse the catalogue.</div>';
-    return;
-  }
-  root.innerHTML = wardrobe.map(x => `
-    <div style="padding:10px 0;border-bottom:1px solid var(--line)">
-      <strong>${safe(x.brand ? x.brand + " · " : "")}${safe(x.name)}</strong>
-      <div class="small muted">${safe(x.category)}${x.weight ? " · " + safe(x.weight) + " g" : ""}${x.warmth ? " · personal warmth " + safe(x.warmth) + "/5" : ""}</div>
-      ${x.notes ? `<div class="small muted">${safe(x.notes)}</div>` : ""}
-      <div class="actions" style="margin-top:7px">
-        <button type="button" class="secondary" onclick="toggleSelected('${safe(x.id)}')">${selected.includes(x.id) ? "Remove from outfit" : "Add to outfit"}</button>
-        <button type="button" class="secondary" onclick="removeWardrobe('${safe(x.id)}')">Remove</button>
+  try {
+    const root = document.getElementById("wardrobeList");
+    if (!root) return;
+    if (!wardrobe.length) {
+      root.innerHTML = '<div class="empty">Your wardrobe is empty. Add an item or browse the catalogue.</div>';
+      return;
+    }
+    root.innerHTML = wardrobe.map(x => `
+      <div style="padding:10px 0;border-bottom:1px solid var(--line)">
+        <strong>${safe(x.brand ? x.brand + " · " : "")}${safe(x.name)}</strong>
+        <div class="small muted">${safe(x.category)}${x.weight ? " · " + safe(x.weight) + " g" : ""}${x.warmth ? " · personal warmth " + safe(x.warmth) + "/5" : ""}</div>
+        ${x.notes ? `<div class="small muted">${safe(x.notes)}</div>` : ""}
+        <div class="actions" style="margin-top:7px">
+          <button type="button" class="secondary" onclick="toggleSelected('${safe(x.id)}')">${selected.includes(x.id) ? "Remove from outfit" : "Add to outfit"}</button>
+          <button type="button" class="secondary" onclick="removeWardrobe('${safe(x.id)}')">Remove</button>
+        </div>
       </div>
-    </div>
-  `).join("");
+    `).join("");
+  } catch (err) {
+    console.error("renderWardrobe error:", err);
+  }
 }
 
 function removeWardrobe(id) {
-  wardrobe = wardrobe.filter(x => x.id !== id);
-  selected = selected.filter(x => x !== id);
-  localStorage.setItem("layerwise_wardrobe", JSON.stringify(wardrobe));
-  localStorage.setItem("layerwise_selected", JSON.stringify(selected));
-  renderWardrobe();
-  updateCount();
+  try {
+    wardrobe = wardrobe.filter(x => x.id !== id);
+    selected = selected.filter(x => x !== id);
+    localStorage.setItem("layerwise_wardrobe", JSON.stringify(wardrobe));
+    localStorage.setItem("layerwise_selected", JSON.stringify(selected));
+    renderWardrobe();
+    renderBuilder();
+    updateCount();
+  } catch (err) {
+    console.error("removeWardrobe error:", err);
+  }
 }
 
 function toggleSelected(id) {
-  selected = selected.includes(id) ? selected.filter(x => x !== id) : [...selected, id];
-  localStorage.setItem("layerwise_selected", JSON.stringify(selected));
-  renderWardrobe();
-  renderBuilder();
+  try {
+    selected = selected.includes(id) ? selected.filter(x => x !== id) : [...selected, id];
+    localStorage.setItem("layerwise_selected", JSON.stringify(selected));
+    renderWardrobe();
+    renderBuilder();
+  } catch (err) {
+    console.error("toggleSelected error:", err);
+  }
 }
 
 function estimateClo(x) {
@@ -376,127 +391,5 @@ function estimateClo(x) {
 }
 
 function renderBuilder() {
-  const root = document.getElementById("builderList");
-  const summaryBox = document.getElementById("estimatorSummary");
-  const selRoot = document.getElementById("selectedList");
-
-  if (!wardrobe.length) {
-    root.innerHTML = '<div class="empty">Add garments to your wardrobe first.</div>';
-    selRoot.textContent = "No garments selected.";
-    summaryBox.innerHTML = '<div class="small muted">Select layers from your wardrobe to estimate comfort range and weight.</div>';
-    return;
-  }
-
-  root.innerHTML = wardrobe.map(x => `
-    <div style="display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)">
-      <div>
-        <strong>${safe(x.brand ? x.brand + " · " : "")}${safe(x.name)}</strong>
-        <div class="small muted">${safe(x.category)}${x.weight ? " · " + safe(x.weight) + " g" : ""}</div>
-      </div>
-      <label style="margin:0;white-space:nowrap">
-        <input type="checkbox" style="width:auto" ${selected.includes(x.id) ? "checked" : ""} onchange="toggleSelected('${safe(x.id)}')"> Select
-      </label>
-    </div>
-  `).join("");
-
-  const chosen = wardrobe.filter(x => selected.includes(x.id));
-  if (!chosen.length) {
-    selRoot.textContent = "No garments selected.";
-    summaryBox.innerHTML = '<div class="small muted">Tick one or more layers on the left to calculate system weight and comfort temperature.</div>';
-    return;
-  }
-
-  const totalWeight = chosen.reduce((s, x) => s + (Number(x.weight) || 0), 0);
-  let totalClo = 0.45 + chosen.reduce((s, x) => s + estimateClo(x), 0);
-
-  const bfVal = parseFloat(document.getElementById("estBodyFat").value);
-  if (!isNaN(bfVal) && bfVal > 0) {
-    totalClo = Math.max(0.4, totalClo + ((bfVal - 18) * 0.015));
-  }
-
-  const allSpecs = chosen.map(x => `${x.category} ${x.wind || ""} ${x.waterproofing || ""}`).join(" ").toLowerCase();
-  const hasWindproof = allSpecs.includes("windproof") || allSpecs.includes("shell") || allSpecs.includes("gore-tex") || allSpecs.includes("pertex");
-  const hasWaterproof = allSpecs.includes("waterproof") || allSpecs.includes("gore-tex") || allSpecs.includes("h2no") || allSpecs.includes("20,000");
-
-  const windLevel = document.getElementById("estWind").value;
-  let windLoss = windLevel === "breezy" ? (hasWindproof ? 0.05 : 0.35) : windLevel === "gale" ? (hasWindproof ? 0.15 : 0.75) : 0;
-  const effClo = Math.max(0.3, totalClo - windLoss);
-
-  const act = document.getElementById("estActivity").value;
-  const degPerClo = act === "static" ? 6.5 : act === "moderate" ? 11.5 : 16.0;
-  const baseTemp = act === "static" ? 23 : act === "moderate" ? 19 : 15;
-  const center = Math.round(baseTemp - (effClo * degPerClo));
-
-  summaryBox.innerHTML = `
-    <div class="est-row"><span class="muted">Comfort range</span><strong>${center - 3}°C to ${center + 3}°C</strong></div>
-    <div class="est-row"><span class="muted">Effective insulation</span><strong>${effClo.toFixed(2)} clo</strong></div>
-    <div class="est-row"><span class="muted">Total worn weight</span><strong>${totalWeight} g</strong></div>
-    <div class="est-row"><span class="muted">Wind / Rain</span><strong>${hasWindproof ? "Windproof" : "Air-permeable"} · ${hasWaterproof ? "Waterproof" : "DWR/Dry"}</strong></div>
-  `;
-
-  selRoot.innerHTML = chosen.map(x => `<p style="margin:6px 0"><strong>${safe(x.name)}</strong><br><span class="muted">${safe(x.category)}</span></p>`).join("");
-}
-
-document.getElementById("estActivity").addEventListener("change", renderBuilder);
-document.getElementById("estWind").addEventListener("change", renderBuilder);
-document.getElementById("estBodyFat").addEventListener("input", e => {
-  localStorage.setItem("layerwise_bf", e.target.value);
-  renderBuilder();
-});
-
-document.getElementById("submissionForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  if (!SUPABASE_URL.startsWith("http") || SUPABASE_URL.includes("YOUR_SUPABASE")) {
-    alert("Please configure your Supabase URL and Anon Key in index.html first.");
-    return;
-  }
-
-  const btn = document.getElementById("submitBtn");
-  btn.disabled = true;
-  btn.textContent = "Publishing…";
-
-  const v = id => document.getElementById(id).value.trim();
-  const fillVal = v("sFill");
-  const typeVal = v("sType");
-  const combinedInsulation = [typeVal, fillVal ? `${fillVal}g fill` : ""].filter(Boolean).join(" · ");
-  const hhVal = v("sHH");
-
-  const payload = {
-    brand: v("sBrand"),
-    model: v("sModel"),
-    category: v("sCategory"),
-    weight_g: v("sWeight") ? parseInt(v("sWeight"), 10) : null,
-    insulation: combinedInsulation || null,
-    fabric: typeVal || null,
-    waterproofing: hhVal ? `${hhVal}mm hydrostatic head` : null,
-    breathability: v("sBreath") || null,
-    wind_resistance: v("sWind") || null,
-    source_url: v("sSource") || null,
-    activity: v("sNotes") || null,
-    verified: false
-  };
-
   try {
-    const endpoint = `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/garments`;
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "apikey": SUPABASE_ANON_KEY.trim(),
-        "Authorization": `Bearer ${SUPABASE_ANON_KEY.trim()}`,
-        "Content-Type": "application/json",
-        "Prefer": "return=minimal"
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    e.target.reset();
-    alert("Contribution saved to the shared database and marked UNVERIFIED.");
-    await fetchCatalogueFromSupabase();
-    showTab("catalogue");
-  } catch (err) {
-    alert("Could not save submission: " + err.message);
-  } finally {
-    btn.disabled = false;
-    btn.textContent =
+    const root =

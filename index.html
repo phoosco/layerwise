@@ -33,16 +33,16 @@ footer{max-width:1120px;margin:0 auto;padding:0 22px 35px;color:var(--muted);fon
 <header>
  <div class="topline">
    <div class="brand">Layerwise / Field system</div>
-   <div class="version" id="dbBadge">V4 · Connecting database…</div>
+   <div class="version" id="dbBadge">V4 · Ready</div>
  </div>
  <h1>Build a system.<br>Understand every layer.</h1>
  <p>A practical clothing catalogue and layering workspace for people who spend time outside.</p>
  <nav aria-label="Main navigation">
-  <button class="active" data-tab="overview">Overview</button>
-  <button data-tab="catalogue">Clothing catalogue</button>
-  <button data-tab="submit">Submit a garment</button>
-  <button data-tab="wardrobe">My wardrobe</button>
-  <button data-tab="builder">Layering workspace</button>
+  <button type="button" class="active" data-tab="overview">Overview</button>
+  <button type="button" data-tab="catalogue">Clothing catalogue</button>
+  <button type="button" data-tab="submit">Submit a garment</button>
+  <button type="button" data-tab="wardrobe">My wardrobe</button>
+  <button type="button" data-tab="builder">Layering workspace</button>
  </nav>
 </header>
 <main>
@@ -50,11 +50,11 @@ footer{max-width:1120px;margin:0 auto;padding:0 22px 35px;color:var(--muted);fon
  <div class="eyebrow">The project</div><h2>Useful information, not made-up ratings.</h2>
  <p class="intro">Layerwise is being built around garment properties and real-world use. Manufacturer data, community knowledge and personal experience should be distinguishable rather than blended into one supposedly precise temperature rating.</p>
  <div class="grid">
-  <div class="card span-4"><div class="eyebrow">Shared catalogue</div><div class="stat" id="catalogueCount">0</div><strong>Recorded garments</strong><p class="muted small">Curated records and community submissions stored in Supabase.</p></div>
+  <div class="card span-4"><div class="eyebrow">Shared catalogue</div><div class="stat" id="catalogueCount">3</div><strong>Recorded garments</strong><p class="muted small">Curated records and community submissions stored in Supabase.</p></div>
   <div class="card span-4"><div class="eyebrow">Your equipment</div><div class="stat" id="wardrobeCount">0</div><strong>Items in your wardrobe</strong><p class="muted small">Add catalogue garments or record your own kit locally.</p></div>
   <div class="card span-4"><div class="eyebrow">Data integrity</div><div class="stat">2</div><strong>Clear source tiers</strong><p class="muted small">Verified manufacturer specs stay separate from unverified entries.</p></div>
   <div class="card span-8"><h3>How catalogue status works</h3><p><span class="pill verified">CURATED</span> Checked against manufacturer specifications or another identified reliable source.</p><p><span class="pill pending">UNVERIFIED</span> Submitted by a user; visible to everyone as a contribution, but not treated as confirmed product data.</p><p><span class="pill local">LOCAL WARDROBE</span> Your personal gear and outfit selections are saved privately in your browser.</p></div>
-  <div class="card span-4"><h3>Explore & build</h3><p class="muted small">Browse the shared catalogue, submit missing outdoor gear for review, and test combinations in the layering workspace.</p><button class="primary" onclick="showTab('catalogue')">Explore catalogue</button></div>
+  <div class="card span-4"><h3>Explore & build</h3><p class="muted small">Browse the shared catalogue, submit missing outdoor gear for review, and test combinations in the layering workspace.</p><button type="button" class="primary" onclick="showTab('catalogue')">Explore catalogue</button></div>
  </div>
  <div class="notice warning"><strong>Important:</strong> Layering estimates are planning aids based on garment insulation, wind exposure, exertion, and optional body composition—never a substitute for mountain weather judgement.</div>
 </section>
@@ -104,7 +104,7 @@ footer{max-width:1120px;margin:0 auto;padding:0 22px 35px;color:var(--muted);fon
      <div class="full"><label for="sNotes">Notes / Intended activity</label><textarea id="sNotes" placeholder="Version, year, intended conditions, or where the information came from."></textarea></div>
     </div>
     <div class="notice warning">Please don't guess technical values. Leave unknown fields blank.</div>
-    <button class="primary" type="submit" id="submitBtn">Publish contribution</button>
+    <button type="submit" class="primary" id="submitBtn">Publish contribution</button>
    </form>
   </div>
   <div class="card span-4"><h3>What happens to it?</h3><ol class="muted small" style="padding-left:18px;line-height:1.7"><li>Your entry is saved to the shared Supabase database.</li><li>It appears immediately in the catalogue as <strong>unverified</strong> for all visitors.</li><li>It can be checked against the linked source.</li><li>Once verified in Supabase, it upgrades to a <strong>curated</strong> record.</li></ol></div>
@@ -120,7 +120,7 @@ footer{max-width:1120px;margin:0 auto;padding:0 22px 35px;color:var(--muted);fon
     <div class="fieldrow"><div><label for="wBrand">Brand</label><input id="wBrand" placeholder="Brand"></div><div><label for="wCategory">Category</label><select id="wCategory"><option>Base layer</option><option>Mid layer</option><option>Insulation</option><option>Shell</option><option>Trousers</option><option>Accessories</option><option>Footwear</option></select></div></div>
     <div class="fieldrow"><div><label for="wWeight">Weight (g)</label><input id="wWeight" type="number" min="0"></div><div><label for="wWarmth">Personal warmth (1–5)</label><select id="wWarmth"><option value="">Not rated</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div></div>
     <label for="wNotes">Notes</label><textarea id="wNotes" placeholder="Fit, age, condition, how you use it…"></textarea>
-    <p><button class="primary" type="submit">Add to wardrobe</button></p>
+    <p><button type="submit" class="primary">Add to wardrobe</button></p>
    </form>
   </div>
   <div class="card span-6"><h3>Your items</h3><div id="wardrobeList"></div></div>
@@ -139,7 +139,7 @@ footer{max-width:1120px;margin:0 auto;padding:0 22px 35px;color:var(--muted);fon
     <div class="fieldrow">
       <div>
         <label for="estActivity">Activity level</label>
-        <select id="estActivity" onchange="renderBuilder()">
+        <select id="estActivity">
           <option value="static">Static / Camp</option>
           <option value="moderate" selected>Steady hiking</option>
           <option value="high">Fast ascent</option>
@@ -147,15 +147,15 @@ footer{max-width:1120px;margin:0 auto;padding:0 22px 35px;color:var(--muted);fon
       </div>
       <div>
         <label for="estWind">Wind exposure</label>
-        <select id="estWind" onchange="renderBuilder()">
+        <select id="estWind">
           <option value="sheltered">Sheltered</option>
           <option value="breezy" selected>Exposed ridge</option>
           <option value="gale">Gale / Summit</option>
         </select>
       </div>
     </div>
-    <label for="estBodyFat">Body fat % (optional — refines passive insulation)</label>
-    <input id="estBodyFat" type="number" min="4" max="55" placeholder="e.g. 18" oninput="localStorage.setItem('layerwise_bf', this.value); renderBuilder();">
+    <label for="estBodyFat">Body fat % (optional)</label>
+    <input id="estBodyFat" type="number" min="4" max="55" placeholder="e.g. 18">
 
     <div id="estimatorSummary" class="est-box"></div>
     <h3 style="margin-top:16px">Active layers</h3>
@@ -174,32 +174,29 @@ const SUPABASE_URL = "https://eztzhvliaazmavtfmpxs.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_E6eTLsnY3QWV1RVaQ4S1tA_sIbSsMKv";
 // =========================================================
 
-const read = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
-const save = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+const seed = [
+  {id:"seed-1",brand:"Arc'teryx",model:"Atom Hoody",category:"Mid Layer",weight_g:370,insulation:"Coreloft Compact 60",fabric:"Tyono 20D",wind_resistance:"Wind-resistant",waterproofing:"DWR",verified:true},
+  {id:"seed-2",brand:"Rab",model:"Microlight Alpine",category:"Insulated Layer",weight_g:466,insulation:"700FP Down",fabric:"Pertex Quantum",wind_resistance:"Windproof",waterproofing:"Nikwax Down + DWR",verified:true},
+  {id:"seed-3",brand:"Patagonia",model:"Torrentshell 3L",category:"Outer Shell",weight_g:400,insulation:"None",fabric:"3L H2No",wind_resistance:"Windproof",waterproofing:"20,000mm H2No",verified:true}
+];
 
-let catalogue = [];
-let wardrobe = read("layerwise_wardrobe", []);
-let selected = read("layerwise_selected", []);
+let catalogue = [...seed];
+let wardrobe = [];
+let selected = [];
 
-const savedBF = localStorage.getItem("layerwise_bf");
-if (savedBF) document.getElementById("estBodyFat").value = savedBF;
-
-function showTab(id) {
-  document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === id));
-  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("active", b.dataset.tab === id));
-  if (id === "catalogue") renderCatalogue();
-  if (id === "wardrobe") renderWardrobe();
-  if (id === "builder") renderBuilder();
-  window.scrollTo({ top: 0, behavior: "smooth" });
+try {
+  wardrobe = JSON.parse(localStorage.getItem("layerwise_wardrobe") || "[]");
+  selected = JSON.parse(localStorage.getItem("layerwise_selected") || "[]");
+  const savedBF = localStorage.getItem("layerwise_bf");
+  if (savedBF) document.getElementById("estBodyFat").value = savedBF;
+} catch (e) {
+  console.error("Storage error:", e);
 }
-
-document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
 
 function safe(v) {
   return String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
-// Normalize category names so CSV imports ("Insulated Layer", "Outer Shell") and V3 names ("Insulation", "Shell") match seamlessly
 function normalizeCategory(cat) {
   const c = (cat || "").toLowerCase();
   if (c.includes("base")) return "Base layer";
@@ -213,14 +210,293 @@ function normalizeCategory(cat) {
 }
 
 function statusPill(item) {
-  return item.verified
-    ? '<span class="pill verified">CURATED</span>'
-    : '<span class="pill pending">UNVERIFIED</span>';
+  return item.verified ? '<span class="pill verified">CURATED</span>' : '<span class="pill pending">UNVERIFIED</span>';
 }
 
-// Direct Supabase REST fetch (zero external CDN scripts required!)
-async function fetchCatalogueFromSupabase() {
-  const badge = document.getElementById("dbBadge");
+function showTab(id) {
+  document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === id));
+  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("active", b.dataset.tab === id));
+  if (id === "catalogue") renderCatalogue();
+  if (id === "wardrobe") renderWardrobe();
+  if (id === "builder") renderBuilder();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// Bind navigation clicks immediately
+document.querySelectorAll("nav button").forEach(b => {
+  b.addEventListener("click", () => showTab(b.dataset.tab));
+});
+
+function renderCatalogue() {
+  const q = (document.getElementById("search").value || "").toLowerCase();
+  const cat = document.getElementById("categoryFilter").value;
+  const st = document.getElementById("statusFilter").value;
+
+  const items = catalogue.filter(x => {
+    const normCat = normalizeCategory(x.category);
+    const haystack = [x.brand, x.model, x.category, x.insulation, x.fabric, x.activity].join(" ").toLowerCase();
+    const matchesQ = !q || haystack.includes(q);
+    const matchesCat = !cat || normCat === cat;
+    const matchesSt = !st || (st === "curated" && x.verified) || (st === "unverified" && !x.verified);
+    return matchesQ && matchesCat && matchesSt;
+  });
+
+  const root = document.getElementById("catalogueTable");
+  if (!items.length) {
+    root.innerHTML = '<div class="empty">No garments match those filters.</div>';
+    return;
+  }
+
+  root.innerHTML = '<table><thead><tr><th>Garment</th><th>Category</th><th>Recorded specifications</th><th>Status</th><th></th></tr></thead><tbody>' +
+    items.map(x => {
+      const normCat = normalizeCategory(x.category);
+      const specs = [];
+      if (x.weight_g) specs.push(`Weight: ${safe(x.weight_g)} g`);
+      if (x.insulation && x.insulation !== "None") specs.push(`Insulation: ${safe(x.insulation)}`);
+      if (x.fabric) specs.push(`Fabric: ${safe(x.fabric)}`);
+      if (x.waterproofing) specs.push(`Water: ${safe(x.waterproofing)}`);
+      if (x.wind_resistance) specs.push(`Wind: ${safe(x.wind_resistance)}`);
+
+      return `<tr>
+        <td>
+          <div class="product">
+            <strong>${safe(x.brand)} · ${safe(x.model)}</strong>
+            <span class="specs">${safe(x.activity || "")}</span>
+            ${x.source_url ? `<a class="small" href="${safe(x.source_url)}" target="_blank" rel="noopener">Source ↗</a>` : ""}
+          </div>
+        </td>
+        <td>${safe(normCat)}</td>
+        <td class="specs">${specs.join("<br>") || "No specs recorded"}</td>
+        <td>${statusPill(x)}</td>
+        <td><button type="button" class="secondary" data-add-id="${safe(x.id)}">Add to wardrobe</button></td>
+      </tr>`;
+    }).join("") + '</tbody></table>';
+}
+
+document.getElementById("search").addEventListener("input", renderCatalogue);
+document.getElementById("categoryFilter").addEventListener("change", renderCatalogue);
+document.getElementById("statusFilter").addEventListener("change", renderCatalogue);
+
+// Global click listener for catalogue "Add to wardrobe" buttons
+document.addEventListener("click", e => {
+  const addBtn = e.target.closest("[data-add-id]");
+  if (addBtn) {
+    addToWardrobe(addBtn.dataset.addId);
+  }
+});
+
+function addToWardrobe(id) {
+  const x = catalogue.find(a => String(a.id) === String(id));
+  if (!x) return;
+  if (wardrobe.some(a => String(a.catalogueId) === String(id))) {
+    alert("That item is already in your wardrobe.");
+    return;
+  }
+  wardrobe.push({
+    id: "w-" + Date.now(),
+    catalogueId: x.id,
+    name: x.model,
+    brand: x.brand,
+    category: normalizeCategory(x.category),
+    weight: x.weight_g || "",
+    insulation: x.insulation || "",
+    waterproofing: x.waterproofing || "",
+    wind: x.wind_resistance || "",
+    warmth: "",
+    notes: x.activity || "Added from catalogue"
+  });
+  localStorage.setItem("layerwise_wardrobe", JSON.stringify(wardrobe));
+  updateCount();
+  alert("Added to your wardrobe.");
+}
+
+document.getElementById("wardrobeForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const v = id => document.getElementById(id).value.trim();
+  wardrobe.push({
+    id: "w-" + Date.now(),
+    name: v("wName"),
+    brand: v("wBrand"),
+    category: v("wCategory"),
+    weight: v("wWeight"),
+    warmth: v("wWarmth"),
+    notes: v("wNotes")
+  });
+  localStorage.setItem("layerwise_wardrobe", JSON.stringify(wardrobe));
+  e.target.reset();
+  renderWardrobe();
+  updateCount();
+});
+
+function renderWardrobe() {
+  const root = document.getElementById("wardrobeList");
+  if (!wardrobe.length) {
+    root.innerHTML = '<div class="empty">Your wardrobe is empty. Add an item or browse the catalogue.</div>';
+    return;
+  }
+  root.innerHTML = wardrobe.map(x => `
+    <div style="padding:10px 0;border-bottom:1px solid var(--line)">
+      <strong>${safe(x.brand ? x.brand + " · " : "")}${safe(x.name)}</strong>
+      <div class="small muted">${safe(x.category)}${x.weight ? " · " + safe(x.weight) + " g" : ""}${x.warmth ? " · personal warmth " + safe(x.warmth) + "/5" : ""}</div>
+      ${x.notes ? `<div class="small muted">${safe(x.notes)}</div>` : ""}
+      <div class="actions" style="margin-top:7px">
+        <button type="button" class="secondary" onclick="toggleSelected('${safe(x.id)}')">${selected.includes(x.id) ? "Remove from outfit" : "Add to outfit"}</button>
+        <button type="button" class="secondary" onclick="removeWardrobe('${safe(x.id)}')">Remove</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function removeWardrobe(id) {
+  wardrobe = wardrobe.filter(x => x.id !== id);
+  selected = selected.filter(x => x !== id);
+  localStorage.setItem("layerwise_wardrobe", JSON.stringify(wardrobe));
+  localStorage.setItem("layerwise_selected", JSON.stringify(selected));
+  renderWardrobe();
+  updateCount();
+}
+
+function toggleSelected(id) {
+  selected = selected.includes(id) ? selected.filter(x => x !== id) : [...selected, id];
+  localStorage.setItem("layerwise_selected", JSON.stringify(selected));
+  renderWardrobe();
+  renderBuilder();
+}
+
+function estimateClo(x) {
+  if (x.warmth) return 0.2 + (Number(x.warmth) * 0.32);
+  const cat = normalizeCategory(x.category);
+  const ins = (x.insulation || "").toLowerCase();
+  const w = Number(x.weight) || 0;
+  if (cat === "Base layer") return ins.includes("250") || ins.includes("260") ? 0.45 : 0.30;
+  if (cat === "Mid layer") return (ins.includes("coreloft") || ins.includes("primaloft") || w > 380) ? 0.80 : 0.60;
+  if (cat === "Insulation") return (ins.includes("800") || ins.includes("850") || ins.includes("900") || w > 550) ? 1.80 : 1.35;
+  if (cat === "Shell") return 0.30;
+  return 0.25;
+}
+
+function renderBuilder() {
+  const root = document.getElementById("builderList");
+  const summaryBox = document.getElementById("estimatorSummary");
+  const selRoot = document.getElementById("selectedList");
+
+  if (!wardrobe.length) {
+    root.innerHTML = '<div class="empty">Add garments to your wardrobe first.</div>';
+    selRoot.textContent = "No garments selected.";
+    summaryBox.innerHTML = '<div class="small muted">Select layers from your wardrobe to estimate comfort range and weight.</div>';
+    return;
+  }
+
+  root.innerHTML = wardrobe.map(x => `
+    <div style="display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)">
+      <div>
+        <strong>${safe(x.brand ? x.brand + " · " : "")}${safe(x.name)}</strong>
+        <div class="small muted">${safe(x.category)}${x.weight ? " · " + safe(x.weight) + " g" : ""}</div>
+      </div>
+      <label style="margin:0;white-space:nowrap">
+        <input type="checkbox" style="width:auto" ${selected.includes(x.id) ? "checked" : ""} onchange="toggleSelected('${safe(x.id)}')"> Select
+      </label>
+    </div>
+  `).join("");
+
+  const chosen = wardrobe.filter(x => selected.includes(x.id));
+  if (!chosen.length) {
+    selRoot.textContent = "No garments selected.";
+    summaryBox.innerHTML = '<div class="small muted">Tick one or more layers on the left to calculate system weight and comfort temperature.</div>';
+    return;
+  }
+
+  const totalWeight = chosen.reduce((s, x) => s + (Number(x.weight) || 0), 0);
+  let totalClo = 0.45 + chosen.reduce((s, x) => s + estimateClo(x), 0);
+
+  const bfVal = parseFloat(document.getElementById("estBodyFat").value);
+  if (!isNaN(bfVal) && bfVal > 0) {
+    totalClo = Math.max(0.4, totalClo + ((bfVal - 18) * 0.015));
+  }
+
+  const allSpecs = chosen.map(x => `${x.category} ${x.wind || ""} ${x.waterproofing || ""}`).join(" ").toLowerCase();
+  const hasWindproof = allSpecs.includes("windproof") || allSpecs.includes("shell") || allSpecs.includes("gore-tex") || allSpecs.includes("pertex");
+  const hasWaterproof = allSpecs.includes("waterproof") || allSpecs.includes("gore-tex") || allSpecs.includes("h2no") || allSpecs.includes("20,000");
+
+  const windLevel = document.getElementById("estWind").value;
+  let windLoss = windLevel === "breezy" ? (hasWindproof ? 0.05 : 0.35) : windLevel === "gale" ? (hasWindproof ? 0.15 : 0.75) : 0;
+  const effClo = Math.max(0.3, totalClo - windLoss);
+
+  const act = document.getElementById("estActivity").value;
+  const degPerClo = act === "static" ? 6.5 : act === "moderate" ? 11.5 : 16.0;
+  const baseTemp = act === "static" ? 23 : act === "moderate" ? 19 : 15;
+  const center = Math.round(baseTemp - (effClo * degPerClo));
+
+  summaryBox.innerHTML = `
+    <div class="est-row"><span class="muted">Comfort range</span><strong>${center - 3}°C to ${center + 3}°C</strong></div>
+    <div class="est-row"><span class="muted">Effective insulation</span><strong>${effClo.toFixed(2)} clo</strong></div>
+    <div class="est-row"><span class="muted">Total worn weight</span><strong>${totalWeight} g</strong></div>
+    <div class="est-row"><span class="muted">Wind / Rain</span><strong>${hasWindproof ? "Windproof" : "Air-permeable"} · ${hasWaterproof ? "Waterproof" : "DWR/Dry"}</strong></div>
+  `;
+
+  selRoot.innerHTML = chosen.map(x => `<p style="margin:6px 0"><strong>${safe(x.name)}</strong><br><span class="muted">${safe(x.category)}</span></p>`).join("");
+}
+
+document.getElementById("estActivity").addEventListener("change", renderBuilder);
+document.getElementById("estWind").addEventListener("change", renderBuilder);
+document.getElementById("estBodyFat").addEventListener("input", e => {
+  localStorage.setItem("layerwise_bf", e.target.value);
+  renderBuilder();
+});
+
+document.getElementById("submissionForm").addEventListener("submit", async e => {
+  e.preventDefault();
   if (!SUPABASE_URL.startsWith("http") || SUPABASE_URL.includes("YOUR_SUPABASE")) {
-    badge.textContent = "V4 · Paste Supabase keys";
-    document.getElementById("catalogueTable").innerHTML = '<div class="empty
+    alert("Please configure your Supabase URL and Anon Key in index.html first.");
+    return;
+  }
+
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true;
+  btn.textContent = "Publishing…";
+
+  const v = id => document.getElementById(id).value.trim();
+  const fillVal = v("sFill");
+  const typeVal = v("sType");
+  const combinedInsulation = [typeVal, fillVal ? `${fillVal}g fill` : ""].filter(Boolean).join(" · ");
+  const hhVal = v("sHH");
+
+  const payload = {
+    brand: v("sBrand"),
+    model: v("sModel"),
+    category: v("sCategory"),
+    weight_g: v("sWeight") ? parseInt(v("sWeight"), 10) : null,
+    insulation: combinedInsulation || null,
+    fabric: typeVal || null,
+    waterproofing: hhVal ? `${hhVal}mm hydrostatic head` : null,
+    breathability: v("sBreath") || null,
+    wind_resistance: v("sWind") || null,
+    source_url: v("sSource") || null,
+    activity: v("sNotes") || null,
+    verified: false
+  };
+
+  try {
+    const endpoint = `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/garments`;
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "apikey": SUPABASE_ANON_KEY.trim(),
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY.trim()}`,
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    e.target.reset();
+    alert("Contribution saved to the shared database and marked UNVERIFIED.");
+    await fetchCatalogueFromSupabase();
+    showTab("catalogue");
+  } catch (err) {
+    alert("Could not save submission: " + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent =

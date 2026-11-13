@@ -1,426 +1,226 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Layerwise — Technical Layering & Gear Catalogue</title>
-  <!-- Supabase JS v2 CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root {
-      --bg-dark: #0d1b15;
-      --bg-card: #14281f;
-      --bg-input: #0a1410;
-      --border: #234234;
-      --accent: #34d399;
-      --accent-hover: #10b981;
-      --text-main: #ecfdf5;
-      --text-muted: #9ca3af;
-      --warn-bg: #3b2a14;
-      --warn-text: #fbbf24;
-      --verified-bg: #123829;
-      --verified-text: #34d399;
-      --danger-text: #f87171;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      line-height: 1.5;
-      padding: 20px;
-    }
-
-    .container { max-width: 1150px; margin: 0 auto; }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 24px;
-    }
-
-    h1 { font-size: 1.8rem; color: var(--accent); letter-spacing: -0.5px; }
-    .subtitle { color: var(--text-muted); font-size: 0.95rem; }
-
-    .status-pill {
-      font-size: 0.8rem;
-      padding: 5px 12px;
-      border-radius: 999px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-    }
-
-    .tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-    }
-
-    .tab-btn {
-      background: var(--bg-card);
-      color: var(--text-main);
-      border: 1px solid var(--border);
-      padding: 10px 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: 0.2s;
-    }
-
-    .tab-btn.active {
-      background: var(--accent);
-      color: #062117;
-      border-color: var(--accent);
-    }
-
-    .panel { display: none; }
-    .panel.active { display: block; }
-
-    .controls {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    input, select, textarea {
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      color: var(--text-main);
-      padding: 10px 12px;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-family: inherit;
-    }
-
-    input:focus, select:focus, textarea:focus { outline: 1px solid var(--accent); }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-      gap: 16px;
-    }
-
-    .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 8px;
-    }
-
-    .brand { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--accent); font-weight: 700; }
-    .model { font-size: 1.15rem; font-weight: 700; }
-
-    .badge {
-      font-size: 0.72rem;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .badge.verified { background: var(--verified-bg); color: var(--verified-text); }
-    .badge.unverified { background: var(--warn-bg); color: var(--warn-text); }
-    .badge.personal { background: #1e293b; color: #93c5fd; }
-
-    .specs {
-      font-size: 0.86rem;
-      color: var(--text-muted);
-      display: grid;
-      gap: 4px;
-    }
-    .specs strong { color: var(--text-main); font-weight: 500; }
-
-    .btn {
-      background: var(--accent);
-      color: #062117;
-      border: none;
-      padding: 9px 14px;
-      border-radius: 8px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .btn:hover { background: var(--accent-hover); }
-    .btn-outline {
-      background: transparent;
-      color: var(--accent);
-      border: 1px solid var(--accent);
-    }
-    .btn-danger {
-      background: transparent;
-      color: var(--danger-text);
-      border: 1px solid #7f1d1d;
-    }
-
-    .estimator-box {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 14px;
-      background: var(--bg-card);
-      padding: 20px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-    }
-
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
-    .form-group label { font-size: 0.85rem; color: var(--text-muted); }
-
-    .summary-stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
-
-    .stat-box { background: var(--bg-input); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border); }
-    .stat-label { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    .stat-val { font-size: 1.15rem; font-weight: 700; color: var(--accent); margin-top: 2px; }
-    .stat-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
-
-    .advice-banner {
-      margin-top: 14px;
-      padding: 12px 14px;
-      border-radius: 8px;
-      background: var(--bg-input);
-      border-left: 3px solid var(--accent);
-      font-size: 0.88rem;
-      color: var(--text-main);
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Layerwise — Build your system</title>
+<meta name="description" content="A practical outdoor clothing catalogue and layering planner.">
+<style>
+:root{--ink:#182923;--muted:#66756d;--paper:#f3f1e9;--card:#fffefa;--line:#d9ded5;--green:#183d30;--lime:#d5e4a6;--amber:#f1dfb5;--blue:#dce8e6;--shadow:0 10px 30px #1b33200c}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:var(--green);color:#fff;padding:28px max(22px,calc((100vw - 1120px)/2)) 24px}
+.topline{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.brand{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:#c9d7c9;font-weight:700}.version{font-size:12px;color:#d5e4a6;border:1px solid #668074;border-radius:99px;padding:4px 10px}
+h1{font-size:clamp(32px,5vw,54px);line-height:1.03;letter-spacing:-.045em;margin:24px 0 10px;max-width:750px}header p{color:#d4dfd7;max-width:650px;margin:0}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:26px}nav button{border:1px solid #577064;background:transparent;color:#e5eee7;padding:9px 14px;border-radius:6px;font:inherit;cursor:pointer}nav button.active{background:var(--lime);border-color:var(--lime);color:var(--green);font-weight:700}
+main{max-width:1120px;margin:30px auto;padding:0 22px 70px}.panel{display:none}.panel.active{display:block}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:var(--muted);font-weight:800;margin-bottom:8px}
+h2{font-size:28px;letter-spacing:-.035em;margin:0 0 8px}h3{font-size:17px;margin:0 0 8px}.intro{color:var(--muted);max-width:760px;margin:0 0 24px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:19px;box-shadow:var(--shadow)}.span-8{grid-column:span 8}.span-6{grid-column:span 6}.span-4{grid-column:span 4}.span-12{grid-column:span 12}
+.stat{font-size:31px;letter-spacing:-.05em;font-weight:750}.muted{color:var(--muted)}.small{font-size:12px}.pill{display:inline-flex;align-items:center;border-radius:99px;padding:3px 9px;font-size:11px;font-weight:750;letter-spacing:.02em}.verified{background:#e1ecd0;color:#31532d}.pending{background:#f5e7c7;color:#74541c}.local{background:#e1e9e8;color:#385b57}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:18px 0}.toolbar input{flex:1;min-width:190px}.toolbar select{width:auto;min-width:160px}
+input,select,textarea{width:100%;border:1px solid #cbd3c9;background:#fffefa;border-radius:6px;padding:10px 11px;color:var(--ink);font:inherit}textarea{min-height:78px;resize:vertical}label{display:block;font-size:12px;font-weight:750;color:#45564c;margin:12px 0 5px}.fieldrow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button.primary{background:var(--green);color:white;border:1px solid var(--green);padding:10px 15px;border-radius:6px;font:inherit;font-weight:700;cursor:pointer}button.secondary{background:transparent;color:var(--green);border:1px solid #9eafa3;padding:9px 13px;border-radius:6px;font:inherit;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px 9px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}td{font-size:13px}.product{display:flex;flex-direction:column;gap:3px}.product strong{font-size:14px}.specs{color:var(--muted);font-size:12px}
+.notice{padding:13px 15px;background:#e8ede4;border-left:3px solid #6e8b65;border-radius:4px;color:#425345;font-size:13px;margin:16px 0}
+.warning{background:#f6edda;border-left-color:#bb9145}.empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed #bdc8bd;border-radius:8px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.full{grid-column:1/-1}.hidden{display:none!important}
+.est-box{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:13px;margin-top:14px}
+.est-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid var(--line);font-size:13px}.est-row:last-child{border-bottom:none}
+footer{max-width:1120px;margin:0 auto;padding:0 22px 35px;color:var(--muted);font-size:12px}
+@media(max-width:760px){.span-8,.span-6,.span-4{grid-column:span 12}.fieldrow,.formgrid{grid-template-columns:1fr}.full{grid-column:auto}main{margin-top:22px}.card{padding:16px}table{display:block;overflow-x:auto;white-space:nowrap}}
+</style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div>
-        <h1>Layerwise</h1>
-        <div class="subtitle">Technical Outdoor Garment Catalogue & Physiological Layering Estimator</div>
-      </div>
-      <div id="dbStatus" class="status-pill">Ready</div>
-    </header>
+<header>
+ <div class="topline">
+   <div class="brand">Layerwise / Field system</div>
+   <div class="version" id="dbBadge">V4 · Connecting database…</div>
+ </div>
+ <h1>Build a system.<br>Understand every layer.</h1>
+ <p>A practical clothing catalogue and layering workspace for people who spend time outside.</p>
+ <nav aria-label="Main navigation">
+  <button class="active" data-tab="overview">Overview</button>
+  <button data-tab="catalogue">Clothing catalogue</button>
+  <button data-tab="submit">Submit a garment</button>
+  <button data-tab="wardrobe">My wardrobe</button>
+  <button data-tab="builder">Layering workspace</button>
+ </nav>
+</header>
+<main>
+<section id="overview" class="panel active">
+ <div class="eyebrow">The project</div><h2>Useful information, not made-up ratings.</h2>
+ <p class="intro">Layerwise is being built around garment properties and real-world use. Manufacturer data, community knowledge and personal experience should be distinguishable rather than blended into one supposedly precise temperature rating.</p>
+ <div class="grid">
+  <div class="card span-4"><div class="eyebrow">Shared catalogue</div><div class="stat" id="catalogueCount">0</div><strong>Recorded garments</strong><p class="muted small">Curated records and community submissions stored in Supabase.</p></div>
+  <div class="card span-4"><div class="eyebrow">Your equipment</div><div class="stat" id="wardrobeCount">0</div><strong>Items in your wardrobe</strong><p class="muted small">Add catalogue garments or record your own kit locally.</p></div>
+  <div class="card span-4"><div class="eyebrow">Data integrity</div><div class="stat">2</div><strong>Clear source tiers</strong><p class="muted small">Verified manufacturer specs stay separate from unverified entries.</p></div>
+  <div class="card span-8"><h3>How catalogue status works</h3><p><span class="pill verified">CURATED</span> Checked against manufacturer specifications or another identified reliable source.</p><p><span class="pill pending">UNVERIFIED</span> Submitted by a user; visible to everyone as a contribution, but not treated as confirmed product data.</p><p><span class="pill local">LOCAL WARDROBE</span> Your personal gear and outfit selections are saved privately in your browser.</p></div>
+  <div class="card span-4"><h3>Explore & build</h3><p class="muted small">Browse the shared catalogue, submit missing outdoor gear for review, and test combinations in the layering workspace.</p><button class="primary" onclick="showTab('catalogue')">Explore catalogue</button></div>
+ </div>
+ <div class="notice warning"><strong>Important:</strong> Layering estimates are planning aids based on garment insulation, wind exposure, exertion, and optional body composition—never a substitute for mountain weather judgement.</div>
+</section>
 
-    <div class="tabs">
-      <button type="button" class="tab-btn active" data-tab="catalogue">Shared Catalogue</button>
-      <button type="button" class="tab-btn" data-tab="wardrobe">Outfit & Estimator (<span id="outfitCount">0</span>)</button>
-      <button type="button" class="tab-btn" data-tab="submit">+ Submit Garment</button>
+<section id="catalogue" class="panel">
+ <div class="eyebrow">Reference library</div><h2>Clothing catalogue</h2>
+ <p class="intro">Browse the shared catalogue, filter by category or verification status, and add garments to your wardrobe.</p>
+ <div class="toolbar">
+   <input id="search" placeholder="Search garment, brand or material…" aria-label="Search catalogue">
+   <select id="categoryFilter" aria-label="Filter category">
+     <option value="">All categories</option>
+     <option value="Base layer">Base layer</option>
+     <option value="Mid layer">Mid layer</option>
+     <option value="Insulation">Insulation</option>
+     <option value="Shell">Shell</option>
+     <option value="Trousers">Trousers</option>
+     <option value="Accessories">Accessories</option>
+     <option value="Footwear">Footwear</option>
+   </select>
+   <select id="statusFilter" aria-label="Filter status">
+     <option value="">All statuses</option>
+     <option value="curated">Curated</option>
+     <option value="unverified">Unverified</option>
+   </select>
+ </div>
+ <div class="card"><div id="catalogueTable"><div class="empty">Loading shared catalogue…</div></div></div>
+ <div class="notice">Specifications are shown only when there is a source to support them. A blank field means “not recorded”, not zero performance.</div>
+</section>
+
+<section id="submit" class="panel">
+ <div class="eyebrow">Community contribution</div><h2>Submit a garment</h2>
+ <p class="intro">Add an item missing from the catalogue. Your submission will be saved to the shared database and labelled unverified until its specifications and source can be checked.</p>
+ <div class="grid">
+  <div class="card span-8">
+   <form id="submissionForm">
+    <div class="formgrid">
+     <div><label for="sBrand">Brand *</label><input id="sBrand" required placeholder="e.g. Rab"></div>
+     <div><label for="sModel">Model / product name *</label><input id="sModel" required placeholder="e.g. Microlight Alpine Jacket"></div>
+     <div><label for="sCategory">Category *</label><select id="sCategory" required><option value="">Choose…</option><option value="Base Layer">Base layer</option><option value="Mid Layer">Mid layer</option><option value="Insulated Layer">Insulation</option><option value="Outer Shell">Shell</option><option value="Trousers">Trousers</option><option value="Accessories">Accessories</option><option value="Footwear">Footwear</option></select></div>
+     <div><label for="sType">Insulation / fabric type</label><input id="sType" placeholder="e.g. 700FP down, synthetic, fleece, Gore-Tex"></div>
+     <div><label for="sWeight">Weight (g)</label><input id="sWeight" type="number" min="0" placeholder="If known"></div>
+     <div><label for="sFill">Insulation fill weight (g)</label><input id="sFill" type="number" min="0" placeholder="If known"></div>
+     <div><label for="sHH">Hydrostatic head (mm)</label><input id="sHH" type="number" min="0" placeholder="If known"></div>
+     <div><label for="sBreath">Breathability</label><input id="sBreath" placeholder="e.g. MVTR / RET, if known"></div>
+     <div class="full"><label for="sWind">Wind resistance / construction</label><input id="sWind" placeholder="Only if known; avoid guesses"></div>
+     <div class="full"><label for="sSource">Source URL or reference</label><input id="sSource" type="url" placeholder="Manufacturer page, product label, technical sheet…"></div>
+     <div class="full"><label for="sNotes">Notes / Intended activity</label><textarea id="sNotes" placeholder="Version, year, intended conditions, or where the information came from."></textarea></div>
     </div>
-
-    <!-- CATALOGUE PANEL -->
-    <section id="catalogue" class="panel active">
-      <div class="controls">
-        <input type="text" id="searchInput" placeholder="Search brand, model, insulation..." style="flex:1; min-width:220px;" />
-        <select id="categoryFilter">
-          <option value="ALL">All Categories</option>
-          <option value="Base Layer">Base Layer</option>
-          <option value="Mid Layer">Mid Layer</option>
-          <option value="Insulated Layer">Insulated Layer</option>
-          <option value="Outer Shell">Outer Shell</option>
-        </select>
-        <select id="statusFilter">
-          <option value="ALL">Curated & Community</option>
-          <option value="VERIFIED">Curated Only</option>
-          <option value="UNVERIFIED">Community (Unverified)</option>
-        </select>
-      </div>
-      <div id="catalogueGrid" class="grid"></div>
-    </section>
-
-    <!-- OUTFIT & ESTIMATOR PANEL -->
-    <section id="wardrobe" class="panel">
-      <div class="estimator-box">
-        <h2>Thermodynamic Outfit Estimator</h2>
-        <p class="subtitle" style="margin-bottom: 14px;">Adjust exertion and body composition to estimate comfortable operating temperatures.</p>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 14px;">
-          <div class="form-group">
-            <label>Activity / Exertion Level</label>
-            <select id="activityLevel">
-              <option value="static">Static / Camp / Belaying (1.2 MET)</option>
-              <option value="moderate" selected>Steady Hillwalking / Hiking (3.5 MET)</option>
-              <option value="high">Fast Ascent / Steep Uphill (6.0 MET)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Body Fat % (Optional)</label>
-            <input type="number" id="bodyFatInput" min="4" max="55" step="1" placeholder="e.g. 18" />
-          </div>
-          <div class="form-group">
-            <label>Wind Exposure</label>
-            <select id="windExposure">
-              <option value="sheltered">Sheltered / Forest</option>
-              <option value="breezy" selected>Exposed Ridge (15–25 mph wind)</option>
-              <option value="gale">Gale / Munro Summit (35+ mph wind)</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="summary-stats">
-          <div class="stat-box">
-            <div class="stat-label">Estimated Comfort Temp</div>
-            <div class="stat-val" id="comfortTemp">-- °C</div>
-            <div class="stat-sub" id="cloRating">System Insulation: 0.0 clo</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">Total Worn Weight</div>
-            <div class="stat-val" id="totalWeight">0 g</div>
-            <div class="stat-sub" id="layerBreakdown">0 layers active</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">Wind Protection</div>
-            <div class="stat-val" id="windStatus">None</div>
-            <div class="stat-sub" id="windSub">Convective heat loss risk</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">Rain / Wet Protection</div>
-            <div class="stat-val" id="rainStatus">None</div>
-            <div class="stat-sub" id="rainSub">Check hydrostatic head</div>
-          </div>
-        </div>
-
-        <div class="advice-banner" id="estimatorAdvice">
-          Add layers from the Shared Catalogue to simulate your layering system.
-        </div>
-      </div>
-
-      <!-- Quick Add Personal Gear -->
-      <details class="estimator-box" style="cursor:pointer; padding: 14px 20px;">
-        <summary style="font-weight:700; color:var(--accent);">+ Add Custom Personal Item (Saved locally)</summary>
-        <form id="personalForm" class="form-grid" style="margin-top:14px; cursor:default; background:var(--bg-input);">
-          <div class="form-group">
-            <label>Brand & Model *</label>
-            <input type="text" id="pName" required placeholder="e.g. Decathlon Fleece" />
-          </div>
-          <div class="form-group">
-            <label>Category *</label>
-            <select id="pCat">
-              <option value="Base Layer">Base Layer</option>
-              <option value="Mid Layer" selected>Mid Layer</option>
-              <option value="Insulated Layer">Insulated Layer</option>
-              <option value="Outer Shell">Outer Shell</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Weight (g)</label>
-            <input type="number" id="pWeight" placeholder="e.g. 290" />
-          </div>
-          <div class="form-group">
-            <label>Insulation / Shell Notes</label>
-            <input type="text" id="pNotes" placeholder="e.g. Grid fleece / 10k waterproof" />
-          </div>
-          <div class="form-group" style="justify-content:flex-end;">
-            <button type="submit" class="btn">Add to Outfit</button>
-          </div>
-        </form>
-      </details>
-
-      <div id="wardrobeGrid" class="grid"></div>
-    </section>
-
-    <!-- SUBMIT GARMENT PANEL -->
-    <section id="submit" class="panel">
-      <div class="estimator-box" style="margin-bottom: 20px;">
-        <h3 style="margin-bottom:6px; color:var(--accent);">Quick Auto-Fill from Product Page</h3>
-        <p class="subtitle" style="margin-bottom:10px;">Paste raw specs from any brand's page to auto-extract weight, fill power, and fabrics.</p>
-        <textarea id="rawSpecPaste" rows="3" style="width:100%; margin-bottom:10px;" placeholder="Paste raw product specs here..."></textarea>
-        <button type="button" class="btn btn-outline" id="autoExtractBtn">Auto-Extract into Form Below</button>
-      </div>
-
-      <h2 style="margin-bottom: 12px;">Publish to Shared Catalogue</h2>
-      <form id="submitForm" class="form-grid">
-        <div class="form-group">
-          <label>Brand *</label>
-          <input type="text" id="fBrand" required placeholder="e.g. Rab" />
-        </div>
-        <div class="form-group">
-          <label>Model *</label>
-          <input type="text" id="fModel" required placeholder="e.g. Xenair Alpine" />
-        </div>
-        <div class="form-group">
-          <label>Category *</label>
-          <select id="fCategory" required>
-            <option value="Base Layer">Base Layer</option>
-            <option value="Mid Layer">Mid Layer</option>
-            <option value="Insulated Layer">Insulated Layer</option>
-            <option value="Outer Shell">Outer Shell</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Weight (grams)</label>
-          <input type="number" id="fWeight" placeholder="e.g. 290" />
-        </div>
-        <div class="form-group">
-          <label>Insulation Type & Fill Weight</label>
-          <input type="text" id="fInsulation" placeholder="e.g. PrimaLoft Gold 60g" />
-        </div>
-        <div class="form-group">
-          <label>Fabric & Construction</label>
-          <input type="text" id="fFabric" placeholder="e.g. Pertex Quantum" />
-        </div>
-        <div class="form-group">
-          <label>Wind Resistance</label>
-          <input type="text" id="fWind" placeholder="e.g. Windproof" />
-        </div>
-        <div class="form-group">
-          <label>Waterproofing / Hydrostatic Head</label>
-          <input type="text" id="fWater" placeholder="e.g. 20,000mm / DWR" />
-        </div>
-        <div class="form-group">
-          <label>Breathability</label>
-          <input type="text" id="fBreath" placeholder="e.g. High" />
-        </div>
-        <div class="form-group">
-          <label>Intended Activity & Conditions</label>
-          <input type="text" id="fActivity" placeholder="e.g. Alpine climbing" />
-        </div>
-        <div class="form-group">
-          <label>Manufacturer / Spec Source URL</label>
-          <input type="url" id="fSource" placeholder="https://..." />
-        </div>
-        <div class="form-group" style="justify-content: flex-end;">
-          <button type="submit" class="btn" id="submitBtn">Publish to Catalogue</button>
-        </div>
-      </form>
-    </section>
+    <div class="notice warning">Please don't guess technical values. Leave unknown fields blank.</div>
+    <button class="primary" type="submit" id="submitBtn">Publish contribution</button>
+   </form>
   </div>
+  <div class="card span-4"><h3>What happens to it?</h3><ol class="muted small" style="padding-left:18px;line-height:1.7"><li>Your entry is saved to the shared Supabase database.</li><li>It appears immediately in the catalogue as <strong>unverified</strong> for all visitors.</li><li>It can be checked against the linked source.</li><li>Once verified in Supabase, it upgrades to a <strong>curated</strong> record.</li></ol></div>
+ </div>
+</section>
 
-  <script>
-    // =========================================================
-    // PASTE YOUR SUPABASE CREDENTIALS BELOW
-    // =========================================================
-    const SUPABASE_URL = "https://eztzhvliaazmavtfmpxs.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_E6eTLsnY3QWV1RVaQ4S1tA_sIbSsMKv";
-    // =========================================================
+<section id="wardrobe" class="panel">
+ <div class="eyebrow">Personal kit</div><h2>My wardrobe</h2><p class="intro">Keep a record of your own equipment, including garments that aren't in the catalogue.</p>
+ <div class="grid">
+  <div class="card span-6"><h3>Add an item manually</h3>
+   <form id="wardrobeForm">
+    <label for="wName">Garment name *</label><input id="wName" required placeholder="e.g. Lightweight grid fleece">
+    <div class="fieldrow"><div><label for="wBrand">Brand</label><input id="wBrand" placeholder="Brand"></div><div><label for="wCategory">Category</label><select id="wCategory"><option>Base layer</option><option>Mid layer</option><option>Insulation</option><option>Shell</option><option>Trousers</option><option>Accessories</option><option>Footwear</option></select></div></div>
+    <div class="fieldrow"><div><label for="wWeight">Weight (g)</label><input id="wWeight" type="number" min="0"></div><div><label for="wWarmth">Personal warmth (1–5)</label><select id="wWarmth"><option value="">Not rated</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div></div>
+    <label for="wNotes">Notes</label><textarea id="wNotes" placeholder="Fit, age, condition, how you use it…"></textarea>
+    <p><button class="primary" type="submit">Add to wardrobe</button></p>
+   </form>
+  </div>
+  <div class="card span-6"><h3>Your items</h3><div id="wardrobeList"></div></div>
+ </div>
+</section>
 
-    let db = null;
-    let catalogue = [
-      { id: "fallback_1", brand: "Arc'teryx", model: "Atom Hoody", category: "Mid Layer", weight_g: 370, insulation: "Coreloft Compact 60", fabric: "Tyono 20D", wind_resistance: "Wind-resistant", waterproofing: "DWR", verified: true },
-      { id: "fallback_2", brand: "Rab", model: "Microlight Alpine", category: "Insulated Layer", weight_g: 466, insulation: "700FP Down", fabric: "Pertex Quantum", wind_resistance: "Windproof", waterproofing: "Nikwax Down + DWR", verified: true },
-      { id: "fallback_3", brand: "Patagonia", model: "Torrentshell 3L", category: "Outer Shell", weight_g: 400, insulation: "None", fabric: "3L H2No", wind_resistance: "Windproof", waterproofing: "20,000mm H2No", verified: true }
-    ];
+<section id="builder" class="panel">
+ <div class="eyebrow">Planning workspace</div><h2>Layering workspace</h2><p class="intro">Assemble an outfit from your wardrobe and adjust exertion, wind exposure, and body composition to estimate system performance.</p>
+ <div class="grid">
+  <div class="card span-8">
+    <h3>Select your layers</h3>
+    <div id="builderList"></div>
+  </div>
+  <div class="card span-4">
+    <h3>Selected system & estimator</h3>
+    <div class="fieldrow">
+      <div>
+        <label for="estActivity">Activity level</label>
+        <select id="estActivity" onchange="renderBuilder()">
+          <option value="static">Static / Camp</option>
+          <option value="moderate" selected>Steady hiking</option>
+          <option value="high">Fast ascent</option>
+        </select>
+      </div>
+      <div>
+        <label for="estWind">Wind exposure</label>
+        <select id="estWind" onchange="renderBuilder()">
+          <option value="sheltered">Sheltered</option>
+          <option value="breezy" selected>Exposed ridge</option>
+          <option value="gale">Gale / Summit</option>
+        </select>
+      </div>
+    </div>
+    <label for="estBodyFat">Body fat % (optional — refines passive insulation)</label>
+    <input id="estBodyFat" type="number" min="4" max="55" placeholder="e.g. 18" oninput="localStorage.setItem('layerwise_bf', this.value); renderBuilder();">
+
+    <div id="estimatorSummary" class="est-box"></div>
+    <h3 style="margin-top:16px">Active layers</h3>
+    <div id="selectedList" class="muted small">No garments selected.</div>
+  </div>
+ </div>
+</section>
+</main>
+<footer>Layerwise is an independent prototype. Product names and specifications should be checked against the relevant manufacturer and product generation.</footer>
+
+<script>
+// =========================================================
+// PASTE YOUR SUPABASE CREDENTIALS BELOW
+// =========================================================
+const SUPABASE_URL = "https://eztzhvliaazmavtfmpxs.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_E6eTLsnY3QWV1RVaQ4S1tA_sIbSsMKv";
+// =========================================================
+
+const read = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
+const save = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+
+let catalogue = [];
+let wardrobe = read("layerwise_wardrobe", []);
+let selected = read("layerwise_selected", []);
+
+const savedBF = localStorage.getItem("layerwise_bf");
+if (savedBF) document.getElementById("estBodyFat").value = savedBF;
+
+function showTab(id) {
+  document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === id));
+  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("active", b.dataset.tab === id));
+  if (id === "catalogue") renderCatalogue();
+  if (id === "wardrobe") renderWardrobe();
+  if (id === "builder") renderBuilder();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
+
+function safe(v) {
+  return String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+// Normalize category names so CSV imports ("Insulated Layer", "Outer Shell") and V3 names ("Insulation", "Shell") match seamlessly
+function normalizeCategory(cat) {
+  const c = (cat || "").toLowerCase();
+  if (c.includes("base")) return "Base layer";
+  if (c.includes("mid")) return "Mid layer";
+  if (c.includes("insul")) return "Insulation";
+  if (c.includes("shell")) return "Shell";
+  if (c.includes("trouser") || c.includes("pant")) return "Trousers";
+  if (c.includes("foot") || c.includes("sock") || c.includes("boot")) return "Footwear";
+  if (c.includes("access") || c.includes("glove") || c.includes("beanie") || c.includes("balaclava")) return "Accessories";
+  return cat || "Other";
+}
+
+function statusPill(item) {
+  return item.verified
+    ? '<span class="pill verified">CURATED</span>'
+    : '<span class="pill pending">UNVERIFIED</span>';
+}
+
+// Direct Supabase REST fetch (zero external CDN scripts required!)
+async function fetchCatalogueFromSupabase() {
+  const badge = document.getElementById("dbBadge");
+  if (!SUPABASE_URL.startsWith("http") || SUPABASE_URL.includes("YOUR_SUPABASE")) {
+    badge.textContent = "V4 · Paste Supabase keys";
+    document.getElementById("catalogueTable").innerHTML = '<div class="empty

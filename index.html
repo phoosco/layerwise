@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Layerwise — Technical Layering & Gear Catalogue</title>
+  <!-- Supabase JS v2 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -222,7 +223,7 @@
         <h1>Layerwise</h1>
         <div class="subtitle">Technical Outdoor Garment Catalogue & Physiological Layering Estimator</div>
       </div>
-      <div id="dbStatus" class="status-pill">Initializing...</div>
+      <div id="dbStatus" class="status-pill">Ready</div>
     </header>
 
     <div class="tabs">
@@ -418,8 +419,8 @@
     // =========================================================
 
     let db = null;
-    let catalogue = [];
-    let myOutfit = [];
-
-    try {
-      myOutfit = JSON.
+    let catalogue = [
+      { id: "fallback_1", brand: "Arc'teryx", model: "Atom Hoody", category: "Mid Layer", weight_g: 370, insulation: "Coreloft Compact 60", fabric: "Tyono 20D", wind_resistance: "Wind-resistant", waterproofing: "DWR", verified: true },
+      { id: "fallback_2", brand: "Rab", model: "Microlight Alpine", category: "Insulated Layer", weight_g: 466, insulation: "700FP Down", fabric: "Pertex Quantum", wind_resistance: "Windproof", waterproofing: "Nikwax Down + DWR", verified: true },
+      { id: "fallback_3", brand: "Patagonia", model: "Torrentshell 3L", category: "Outer Shell", weight_g: 400, insulation: "None", fabric: "3L H2No", wind_resistance: "Windproof", waterproofing: "20,000mm H2No", verified: true }
+    ];
